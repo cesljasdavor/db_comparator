@@ -1,0 +1,3 @@
+from repositories.relational_coordiante_repository import RelationalCoordinateRepository
+
+relational_coordinate_repository = RelationalCoordinateRepository()
