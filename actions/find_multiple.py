@@ -1,11 +1,15 @@
 from actions.action import Action
 from tkinter import *
-
+from tkinter import messagebox
 
 class FindMultiple(Action):
     def __init__(self, window):
         super().__init__(window)
 
+        self.x_var = StringVar()
+        self.y_var = StringVar()
+        self.width_var = StringVar()
+        self.height_var = StringVar()
         self.relational_point_count_var = StringVar(value="NaN")
         self.relational_error_count_var = StringVar(value="NaN")
         self.relational_time_spent_var = StringVar(value="NaN")
@@ -30,22 +34,22 @@ class FindMultiple(Action):
 
         x_label = Label(input_frame, text="X", fg="#ffffff", bg="#313335", bd=0, padx=20)
         x_label.pack(side=LEFT)
-        x_entry = Entry(input_frame, width=15)
+        x_entry = Entry(input_frame, textvariable=self.x_var, width=15)
         x_entry.pack(side=LEFT)
 
         y_label = Label(input_frame, text="Y", fg="#ffffff", bg="#313335", bd=0, padx=20)
         y_label.pack(side=LEFT)
-        y_entry = Entry(input_frame, width=15)
+        y_entry = Entry(input_frame, textvariable=self.y_var, width=15)
         y_entry.pack(side=LEFT)
 
         width_label = Label(input_frame, text="Width", fg="#ffffff", bg="#313335", bd=0, padx=20)
         width_label.pack(side=LEFT)
-        width_entry = Entry(input_frame, width=15)
+        width_entry = Entry(input_frame, textvariable=self.width_var, width=15)
         width_entry.pack(side=LEFT)
 
         height_label = Label(input_frame, text="Height", fg="#ffffff", bg="#313335", bd=0, padx=20)
         height_label.pack(side=LEFT)
-        height_entry = Entry(input_frame, width=15)
+        height_entry = Entry(input_frame, textvariable=self.height_var, width=15)
         height_entry.pack(side=LEFT)
 
         action_button_frame = Frame(self.window, bg="#313335")
@@ -287,4 +291,11 @@ class FindMultiple(Action):
         percentage_ratio_value.grid(row=1, column=1)
 
     def perform_action(self):
-        print("Action performed")
+        try:
+            print("x={} y={} width={} height={}".format(
+                float(self.x_var.get()),
+                self.y_var.get(),
+                self.width_var.get(),
+                self.height_var.get()))
+        except Exception as e:
+            messagebox.showerror(title="Incorrect input", message="You have provided incorrect input")
