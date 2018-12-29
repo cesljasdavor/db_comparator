@@ -1,6 +1,11 @@
-import repositories.relational_point_repository as rp_repository
-import repositories.spatial_point_repository as sp_repository
 from tkinter import *
+from actions.delete_multiple import DeleteMultiple
+from actions.delete_single import DeleteSingle
+from actions.find_multiple import FindMultiple
+from actions.find_single import FindSingle
+from actions.insert_multiple import InsertMultiple
+from actions.insert_single import InsertSingle
+from actions.update_single import UpdateSingle
 
 # Relational
 # Insert
@@ -16,11 +21,11 @@ from tkinter import *
 # rp_repository.delete_points((0, 0), 10, 20)
 
 # Find
-# results = rp_repository.find_points((0, 0), 10, 20)
+# print(sp_repository.find_point(2))
+# print(sp_repository.find_point_by_coordinates(x=20.75, y=36.265))
+# results = sp_repository.find_points((0, 0), 100, 100)
 # for result in results:
 #     print(str(result))
-# print(rp_repository.find_point(3))
-# print(rp_repository.find_point_by_coordinates(x=5, y=15.65))
 
 
 # Spatial
@@ -37,58 +42,115 @@ from tkinter import *
 # sp_repository.delete_points((0, 0), 100, 100)
 
 # Find
-# print(sp_repository.find_point(2))
-# print(sp_repository.find_point_by_coordinates(x=20.75, y=36.265))
-# results = sp_repository.find_points((0, 0), 100, 100)
+# results = rp_repository.find_points((0, 0), 10, 20)
 # for result in results:
 #     print(str(result))
-def compare_databases():
-    print("console")
+# print(rp_repository.find_point(3))
+# print(rp_repository.find_point_by_coordinates(x=5, y=15.65))
+
+
+def setup_menubar():
+    menubar = Menu(
+        window,
+        bg="#212325",
+        activebackground="#313335",
+        fg="#ffffff",
+        activeforeground="#ffffff",
+        bd=0
+    )
+    window.config(menu=menubar)
+
+    action_menu = Menu(
+        menubar,
+        tearoff=0,
+        bg="#212325",
+        activebackground="#313335",
+        fg="#ffffff",
+        activeforeground="#ffffff",
+        bd=5
+    )
+    action_menu.add_command(label="Insert multiple", command=insert_multiple)
+    action_menu.add_command(label="Insert single", command=insert_single)
+    action_menu.add_command(label="Update single", command=update_single)
+    action_menu.add_command(label="Delete multiple", command=delete_multiple)
+    action_menu.add_command(label="Delete single", command=delete_single)
+    action_menu.add_command(label="Find multiple", command=find_multiple)
+    action_menu.add_command(label="Find single", command=find_single)
+
+    menubar.add_cascade(label="Actions", menu=action_menu)
+    menubar.add_command(label="Help", command=show_help)
+    menubar.add_command(label="Exit", command=exit_app)
+
+
+def insert_multiple():
+    InsertMultiple(window)
+
+
+def insert_single():
+    InsertSingle(window)
+
+
+def update_single():
+    UpdateSingle(window)
+
+
+def delete_multiple():
+    DeleteMultiple(window)
+
+
+def delete_single():
+    DeleteSingle(window)
+
+
+def find_multiple():
+    FindMultiple(window)
+
+
+def find_single():
+    FindSingle(window)
+
+
+def exit_app():
+    window.destroy()
+
+
+def show_help():
+    help_window = Toplevel()
+    help_window.title("Database Comparator - Help")
+    help_window.geometry("{0}x{1}".format(600, 400))
+    help_window.resizable(0, 0)
+    help_window.configure(bg="#313335")
+
+    help_title = Label(help_window, text="Help", anchor=CENTER, font=('Courier', 20), bg="#313335",
+                       fg="#ffffff")
+    help_title.pack(side=TOP, pady=(10, 10))
+    help_text = """
+Welcome to Database comparator. This small GUI application is created to compare spatial and relational 
+database speeds.
+
+Usage
+
+1. Press on "File" -> "Load".
+2. Find your .dbc file
+3. Wait until all points are inserted in both spatial and relational database
+4. Enter your query
+5. View results
+
+Created by Davor Češljaš, Faculty of Electrical engineering and Computing. 
+All rights reserved ®  
+    """
+    help_message = Message(help_window, text=help_text, width=500, bg="#313335", fg="#ffffff")
+    help_message.pack()
 
 
 window = Tk()
 window.title("Database Comparator")
-# Center screen
-# window.eval('tk::PlaceWindow %s center' % window.winfo_pathname(window.winfo_id()))
-window.geometry("{0}x{1}".format(800, 650))
 window.resizable(0, 0)
 window.configure(bg="#313335")
+window.wm_iconname("database_comparator.png")
+setup_menubar()
 
-input_frame = Frame(window, pady=50, bg="#313335")
-input_frame.pack(side=TOP)
+# Initialize window
+FindMultiple(window)
 
-x_label = Label(input_frame, text="X", fg="#ffffff", bg="#313335", bd=0, padx=20)
-x_label.pack(side=LEFT)
-x_entry = Entry(input_frame, width=15)
-x_entry.pack(side=LEFT)
-
-y_label = Label(input_frame, text="Y", fg="#ffffff", bg="#313335", bd=0, padx=20)
-y_label.pack(side=LEFT)
-y_entry = Entry(input_frame, width=15)
-y_entry.pack(side=LEFT)
-
-width_label = Label(input_frame, text="Width", fg="#ffffff", bg="#313335", bd=0, padx=20)
-width_label.pack(side=LEFT)
-width_entry = Entry(input_frame, width=15)
-width_entry.pack(side=LEFT)
-
-height_label = Label(input_frame, text="Height", fg="#ffffff", bg="#313335", bd=0, padx=20)
-height_label.pack(side=LEFT)
-height_entry = Entry(input_frame, width=15)
-height_entry.pack(side=LEFT)
-
-
-compare_button_frame = Frame(window, pady=10, bg="#313335")
-compare_button_frame.pack(side=TOP)
-
-compare_button = Button(
-    compare_button_frame,
-    text="Compare databases",
-    command=compare_databases,
-    bg="#28a745",
-    activebackground="#25a341",
-    fg="#ffffff",
-    activeforeground="#ffffff",
-    bd=0)
-compare_button.pack(side=BOTTOM)
 window.mainloop()

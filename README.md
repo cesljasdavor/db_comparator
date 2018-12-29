@@ -1,4 +1,6 @@
 # Database comparator
+![Image here](database_comparator.png)
+
 This is a tool for comparing speeds of CRUD operations on spatial database and relational
 database.
 
