@@ -2,6 +2,7 @@ from actions.action import Action
 from tkinter import *
 from tkinter import messagebox
 
+
 class FindMultiple(Action):
     def __init__(self, window):
         super().__init__(window)
@@ -275,7 +276,7 @@ class FindMultiple(Action):
 
         percentage_ration_label = Label(
             action_overall_data_frame,
-            text="Faster query percentage",
+            text="Ratio percentage",
             bg="#313335",
             fg="#ffffff",
             padx=20

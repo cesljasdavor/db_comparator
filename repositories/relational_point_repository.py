@@ -1,7 +1,8 @@
 import providers
+from datetime import datetime
+from utils.program_utils import get_milliseconds
 from error.output import print_error
 from mappers.point_mapper import map_to_point, map_to_points
-from models.point import Point
 
 
 def insert_point(x, y):
@@ -28,8 +29,37 @@ def insert_point(x, y):
         connection.close()
 
 
-def update_point(id, new_x, new_y):
-    if id is None or new_x is None or new_y is None:
+def insert_points(points):
+    if points is None:
+        print_error("Please provide points")
+        return
+
+    connection = providers.db_connection_provider.get_connection()
+    errors = []
+    try:
+        start_time = datetime.now()
+        for x, y in points:
+            try:
+                cursor = connection.cursor()
+                cursor.execute(
+                    """
+                        INSERT INTO relational_point (x, y) VALUES ({0}, {1})
+                    """.format(x, y)
+                )
+                cursor.close()
+                connection.commit()
+            except Exception as e:
+                errors.append(e)
+                connection.rollback()
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return len(errors), len(points), get_milliseconds(start_time, end_time)
+
+
+def update_point(point_id, new_x, new_y):
+    if point_id is None or new_x is None or new_y is None:
         print_error("Please provide 'id' for existing point, and new 'x' and 'y' values")
         return
 
@@ -41,14 +71,14 @@ def update_point(id, new_x, new_y):
                 UPDATE relational_point
                 SET x = {0}, y = {1}
                 WHERE id = {2}
-            """.format(new_x, new_y, id)
+            """.format(new_x, new_y, point_id)
         )
         cursor.close()
         connection.commit()
 
         print("Point successfully updated!")
     except Exception as e:
-        print_error("Unable to update point with id: {0}. {1}".format(id, str(e)))
+        print_error("Unable to update point with id: {0}. {1}".format(point_id, str(e)))
         connection.rollback()
     finally:
         connection.close()
@@ -80,8 +110,8 @@ def update_point_by_coordinates(x, y, new_x, new_y):
         connection.close()
 
 
-def delete_point(id):
-    if id is None:
+def delete_point(point_id):
+    if point_id is None:
         print_error("Please provide 'id' for point")
         return
 
@@ -92,14 +122,14 @@ def delete_point(id):
             """
                 DELETE FROM relational_point
                 WHERE id = {0}
-            """.format(id)
+            """.format(point_id)
         )
         cursor.close()
         connection.commit()
 
         print("Point successfully deleted!")
     except Exception as e:
-        print_error("Unable to delete point with id: {0}. {1}".format(id, str(e)))
+        print_error("Unable to delete point with id: {0}. {1}".format(point_id, str(e)))
         connection.rollback()
     finally:
         connection.close()
@@ -160,8 +190,8 @@ def delete_points(bottom_left_corner, width, height):
         connection.close()
 
 
-def find_point(id):
-    if id is None:
+def find_point(point_id):
+    if point_id is None:
         print_error("Please provide 'id' for point")
         return
 
@@ -172,7 +202,7 @@ def find_point(id):
             """
                 SELECT * FROM relational_point 
                 WHERE id = {0}
-            """.format(id)
+            """.format(point_id)
         )
 
         return map_to_point(cursor.fetchone())

@@ -5,7 +5,7 @@ def map_to_point(point_tuple):
     if point_tuple is None:
         return None
 
-    return Point(x=point_tuple[1], y=point_tuple[2], id=point_tuple[0])
+    return Point(x=float(point_tuple[1]), y=float(point_tuple[2]), id=int(point_tuple[0]))
 
 
 def map_to_points(point_tuples):
