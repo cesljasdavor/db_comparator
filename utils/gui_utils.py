@@ -1,5 +1,9 @@
+from threading import Thread
 from tkinter import *
 from tkinter.ttk import Progressbar
+from tkinter import messagebox
+
+from utils.program_utils import reset_database
 
 
 def show_help():
@@ -13,16 +17,13 @@ def show_help():
                        fg="#ffffff")
     help_title.pack(side=TOP, pady=(10, 10))
     help_text = """
-Welcome to Database comparator. This small GUI application is created to compare spatial and relational 
-database speeds.
+Welcome to Database comparator. This small GUI application is created to compare spatial and relational database speeds.
 
 Usage
-
-1. Press on "File" -> "Load".
-2. Find your .dbc file
-3. Wait until all points are inserted in both spatial and relational database
-4. Enter your query
-5. View results
+1. Click on "Actions" menu and pick one of the CRUD operations
+2. Enter necessary parameters
+3. Click "Compare databases" button
+4. View results
 
 Created by Davor Češljaš, Faculty of Electrical engineering and Computing. 
 All rights reserved ®  
@@ -31,8 +32,14 @@ All rights reserved ®
     help_message.pack()
 
 
+def perform_database_reset():
+    reset_database()
+    messagebox.showinfo(title="Database reset", message="Database successfully reset.")
+
+
 class LoadingScreen(object):
-    def __init__(self, title, message=None):
+    def __init__(self, master, title, message=None):
+        self.master = master
         self.title = title
         self.message_var = StringVar(value=message)
         self.progress_var = DoubleVar(value=0.0)
@@ -48,9 +55,10 @@ class LoadingScreen(object):
         self.progress_var.set(value=value)
 
     def init_gui(self):
-        self.window = Toplevel()
+        self.window = Toplevel(self.master)
         self.window.title(self.title)
         self.window.resizable(0, 0)
+        self.window.geometry("{0}x{1}".format(400, 100))
         self.window.configure(bg="#313335")
 
         progress_bar_message = Label(self.window, textvariable=self.message_var, anchor=W, bg="#313335", fg="#ffffff")

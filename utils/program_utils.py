@@ -1,5 +1,4 @@
 import providers
-from error.output import print_error
 
 
 def reset_database():
@@ -50,7 +49,6 @@ def reset_database():
         cursor.close()
         connection.commit()
     except Exception as e:
-        print_error("Unable to reset database")
         connection.rollback()
     finally:
         connection.close()

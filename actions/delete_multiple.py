@@ -1,5 +1,11 @@
 from actions.action import Action
 from tkinter import *
+from tkinter import messagebox
+
+from error.exceptions import InvalidInputException
+from repositories import relational_point_repository as rp_repository
+from repositories import spatial_point_repository as sp_repository
+from utils.gui_utils import LoadingScreen
 
 
 class DeleteMultiple(Action):
@@ -20,7 +26,7 @@ class DeleteMultiple(Action):
         self.spatial_time_spent_var = StringVar(value="NaN")
         self.spatial_avg_time_per_point_var = StringVar(value="NaN")
         self.faster_database_var = StringVar(value="None")
-        self.percentage_ratio_var = StringVar(value="NaN")
+        self.ratio_var = StringVar(value="NaN")
 
         self.init_gui()
         self.create_footer()
@@ -276,7 +282,7 @@ class DeleteMultiple(Action):
 
         percentage_ration_label = Label(
             action_overall_data_frame,
-            text="Ratio percentage",
+            text="Ratio",
             bg="#313335",
             fg="#ffffff",
             padx=20
@@ -284,12 +290,74 @@ class DeleteMultiple(Action):
         percentage_ration_label.grid(row=1, column=0, sticky=W)
         percentage_ratio_value = Label(
             action_overall_data_frame,
-            textvariable=self.percentage_ratio_var,
+            textvariable=self.ratio_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
         percentage_ratio_value.grid(row=1, column=1)
 
-    def perform_action(self):
-        pass
+    def action(self):
+        try:
+            bottom_left_corner = (float(self.x_var.get()), float(self.y_var.get()))
+            width = float(self.width_var.get())
+            height = float(self.height_var.get())
+        except InvalidInputException as e:
+            messagebox.showerror(title="Invalid input", message=str(e))
+            self.reset_inputs()
+            return
+        except Exception:
+            messagebox.showerror(title="Invalid input", message="'x', 'y', 'width' and 'height' must be floats")
+            self.reset_inputs()
+            return
+
+        loading_screen = LoadingScreen(self.window, "Deleting from database", "Initializing...")
+        loading_screen.set_message("Deleting points from relational database...")
+        r_error_count, r_points_count, r_time_elapsed = rp_repository.delete_points(bottom_left_corner, width, height)
+        loading_screen.set_message("Points deleted from relational database.")
+        loading_screen.set_progress_value(50.0)
+        loading_screen.set_message("Deleting points from spatial database...")
+        s_error_count, s_points_count, s_time_elapsed = sp_repository.delete_points(bottom_left_corner, width, height)
+        loading_screen.set_message("Points deleted from spatial database.")
+        loading_screen.set_progress_value(100.0)
+        loading_screen.set_message("Done.")
+        loading_screen.close()
+
+        if r_points_count == 0 and s_points_count == 0:
+            messagebox.showwarning(
+                title="Not found",
+                message="No points inside bounding box bottom left corner = ({0}, {1}) width = {2} height = {3}".format(
+                    bottom_left_corner[0],
+                    bottom_left_corner[1],
+                    width, height
+                )
+            )
+
+            return
+
+        self.relational_error_count_var.set(value=r_error_count)
+        self.relational_point_count_var.set(value=r_points_count)
+        self.relational_time_spent_var.set(value="{0:.3f} ms".format(r_time_elapsed))
+        self.relational_avg_time_per_point_var.set(
+            "{0:.3f} ms".format(r_time_elapsed / (r_points_count + r_error_count)))
+
+        self.spatial_error_count_var.set(value=s_error_count)
+        self.spatial_point_count_var.set(value=s_points_count)
+        self.spatial_time_spent_var.set(value="{0:.3f} ms".format(s_time_elapsed))
+        self.spatial_avg_time_per_point_var.set("{0:.3f} ms".format(s_time_elapsed / (s_points_count + s_error_count)))
+
+        if r_time_elapsed < s_time_elapsed:
+            faster = "Relational"
+            ratio = s_time_elapsed / r_time_elapsed
+        else:
+            faster = "Spatial"
+            ratio = r_time_elapsed / s_time_elapsed
+
+        self.faster_database_var.set(value=faster)
+        self.ratio_var.set(value="{0:.3f}".format(ratio))
+
+    def reset_inputs(self):
+        self.x_var.set(value="")
+        self.y_var.set(value="")
+        self.width_var.set(value="")
+        self.height_var.set(value="")

@@ -1,7 +1,6 @@
 from providers.db_providers import DatabaseConnectionProvider
 import sys
 import getopt
-from error.output import print_error
 
 db_connection_provider = None
 
@@ -37,4 +36,4 @@ try:
     create_db_connection_provider()
     test_connection()
 except Exception as e:
-    print_error("Unable to create database connection provider: " + str(e))
+    sys.exit("Unable to connect to database")

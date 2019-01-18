@@ -1,3 +1,4 @@
+from threading import Thread
 from tkinter import *
 
 
@@ -31,4 +32,8 @@ class Action(object):
         footer_label.pack(side=TOP, pady=(3, 3))
 
     def perform_action(self):
+        thread = Thread(target=self.action)
+        thread.start()
+
+    def action(self):
         pass

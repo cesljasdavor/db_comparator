@@ -1,6 +1,9 @@
+from threading import Thread
+
 from actions.action import Action
 from tkinter import filedialog
 from tkinter import *
+from tkinter import messagebox
 
 from repositories import relational_point_repository as rp_repository
 from repositories import spatial_point_repository as sp_repository
@@ -22,7 +25,7 @@ class InsertMultiple(Action):
         self.spatial_time_spent_var = StringVar(value="NaN")
         self.spatial_avg_time_per_point_var = StringVar(value="NaN")
         self.faster_database_var = StringVar(value="None")
-        self.percentage_ratio_var = StringVar(value="NaN")
+        self.ratio_var = StringVar(value="NaN")
         self.points = None
 
         self.init_gui()
@@ -42,7 +45,7 @@ class InsertMultiple(Action):
         load_button = Button(
             action_button_frame,
             text="Load points",
-            command=self.load_points,
+            command=self.perform_load_points,
             bg="#0069d9",
             activebackground="#036cdc",
             fg="#ffffff",
@@ -270,7 +273,7 @@ class InsertMultiple(Action):
 
         percentage_ration_label = Label(
             action_overall_data_frame,
-            text="Ratio percentage",
+            text="Ratio",
             bg="#313335",
             fg="#ffffff",
             padx=20
@@ -278,25 +281,54 @@ class InsertMultiple(Action):
         percentage_ration_label.grid(row=1, column=0, sticky=W)
         percentage_ratio_value = Label(
             action_overall_data_frame,
-            textvariable=self.percentage_ratio_var,
+            textvariable=self.ratio_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
         percentage_ratio_value.grid(row=1, column=1)
 
-    def perform_action(self):
-        loading_screen = LoadingScreen("Inserting to database", "Initializing...")
+    def action(self):
+        if self.points is None:
+            messagebox.showerror(title="No points", message="No points loaded! Please load points first.")
+            return
+
+        loading_screen = LoadingScreen(self.window, "Inserting to database", "Initializing...")
+        loading_screen.set_message("Inserting points to relational database...")
         r_error_count, r_points_count, r_time_elapsed = rp_repository.insert_points(self.points)
         loading_screen.set_message("Points inserted to relational database.")
         loading_screen.set_progress_value(50.0)
+        loading_screen.set_message("Inserting points to spatial database...")
         s_error_count, s_points_count, s_time_elapsed = sp_repository.insert_points(self.points)
         loading_screen.set_message("Points inserted to spatial database.")
         loading_screen.set_progress_value(100.0)
+        loading_screen.set_message("Done.")
         loading_screen.close()
 
-        print(r_error_count, r_points_count, r_time_elapsed)
-        print(s_error_count, s_points_count, s_time_elapsed)
+        self.relational_error_count_var.set(value=r_error_count)
+        self.relational_point_count_var.set(value=r_points_count)
+        self.relational_time_spent_var.set(value="{0:.3f} ms".format(r_time_elapsed))
+        self.relational_avg_time_per_point_var.set(
+            "{0:.3f} ms".format(r_time_elapsed / (r_points_count + r_error_count)))
+
+        self.spatial_error_count_var.set(value=s_error_count)
+        self.spatial_point_count_var.set(value=s_points_count)
+        self.spatial_time_spent_var.set(value="{0:.3f} ms".format(s_time_elapsed))
+        self.spatial_avg_time_per_point_var.set("{0:.3f} ms".format(s_time_elapsed / (s_points_count + s_error_count)))
+
+        if r_time_elapsed < s_time_elapsed:
+            faster = "Relational"
+            ratio = s_time_elapsed / r_time_elapsed
+        else:
+            faster = "Spatial"
+            ratio = r_time_elapsed / s_time_elapsed
+
+        self.faster_database_var.set(value=faster)
+        self.ratio_var.set(value="{0:.3f}".format(ratio))
+
+    def perform_load_points(self):
+        thread = Thread(target=self.load_points)
+        thread.start()
 
     def load_points(self):
         file_name = filedialog.askopenfilename(
@@ -304,7 +336,12 @@ class InsertMultiple(Action):
             title="Select file",
             filetypes=[("Database comparator file", "*.dbcom")]
         )
+        if file_name is None or len(file_name) == 0:
+            return
 
-        parser = DbcomParser(file_name)
-        parser.parse()
-        self.points = parser.points
+        try:
+            parser = DbcomParser(file_name)
+            parser.parse()
+            self.points = parser.points
+        except Exception:
+            messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
