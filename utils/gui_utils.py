@@ -1,9 +1,10 @@
-from threading import Thread
 from tkinter import *
-from tkinter.ttk import Progressbar
 from tkinter import messagebox
+from tkinter.ttk import Progressbar
 
-from utils.program_utils import reset_database
+from utils.program_utils import reset_database, get_all_points
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 
 
 def show_help():
@@ -25,11 +26,31 @@ Usage
 3. Click "Compare databases" button
 4. View results
 
+You can click on "Show Map" to visualize coordinates on a map of the world.
+
 Created by Davor Češljaš, Faculty of Electrical engineering and Computing. 
 All rights reserved ®  
     """
     help_message = Message(help_window, text=help_text, width=500, bg="#313335", fg="#ffffff")
     help_message.pack()
+
+
+def show_map():
+    points = get_all_points()
+    x_coordinates = [point.x for point in points]
+    y_coordinates = [point.y for point in points]
+
+    plt.figure(num="Map", figsize=(12, 8), edgecolor="grey")
+    plt.xlabel("Longitude")
+    plt.xlim((-180.0, 180.0))
+    plt.ylabel("Latitude")
+    plt.ylim((-90.0, 90.0))
+    m = Basemap(projection='cyl', resolution=None,
+                llcrnrlat=-90, urcrnrlat=90,
+                llcrnrlon=-180, urcrnrlon=180)
+    m.scatter(x=x_coordinates, y=y_coordinates, c="red", s=0.1)
+    m.etopo()
+    plt.show()
 
 
 def perform_database_reset():

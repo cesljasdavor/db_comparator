@@ -19,6 +19,17 @@ database.
     ```postgresql
     CREATE EXTENSION postgis;
     ```
+5. Install `matplotlib`, `numpy` and `basemap` packages for python
+    ```bash
+    pip install matplotlib
+    ```
+    ```bash
+    pip install numpy
+    ```
+    ```bash
+    sudo apt-get install libgeos-dev
+    pip install --user https://github.com/matplotlib/basemap/archive/master.zip
+    ```
 6. Start application by executing `main.py`
 
 ## Generating Dbcom files

@@ -1,4 +1,5 @@
 import providers
+from mappers.point_mapper import map_to_points
 
 
 def reset_database():
@@ -48,7 +49,21 @@ def reset_database():
 
         cursor.close()
         connection.commit()
-    except Exception as e:
+    except Exception:
+        connection.rollback()
+    finally:
+        connection.close()
+
+
+def get_all_points():
+    connection = providers.db_connection_provider.get_connection()
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT * FROM relational_point
+        """)
+        return map_to_points(cursor.fetchall())
+    except Exception:
         connection.rollback()
     finally:
         connection.close()

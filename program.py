@@ -7,7 +7,7 @@ from actions.find_single import FindSingle
 from actions.insert_multiple import InsertMultiple
 from actions.insert_single import InsertSingle
 from actions.update_single import UpdateSingle
-from utils.gui_utils import perform_database_reset
+from utils.gui_utils import perform_database_reset, show_map
 from utils.gui_utils import show_help
 
 
@@ -57,6 +57,7 @@ class Program(object):
         action_menu.add_command(label="Reset database", command=perform_database_reset)
 
         menubar.add_cascade(label="Actions", menu=action_menu)
+        menubar.add_command(label="Show Map", command=show_map)
         menubar.add_command(label="Help", command=show_help)
         menubar.add_command(label="Exit", command=self.exit_app)
 
