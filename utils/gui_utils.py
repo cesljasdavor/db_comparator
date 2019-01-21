@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Progressbar
@@ -10,6 +11,8 @@ from mpl_toolkits.basemap import Basemap
 def show_help():
     help_window = Toplevel()
     help_window.title("Database Comparator - Help")
+    icon = PhotoImage(file=os.path.join("/usr/share/icons", "database_comparator.png"))
+    help_window.tk.call("wm", "iconphoto", help_window._w, icon)
     help_window.geometry("{0}x{1}".format(600, 400))
     help_window.resizable(0, 0)
     help_window.configure(bg="#313335")
@@ -24,7 +27,7 @@ Usage
 1. Click on "Actions" menu and pick one of the CRUD operations
 2. Enter necessary parameters
 3. Click "Compare databases" button
-4. View results
+4. View docs
 
 You can click on "Show Map" to visualize coordinates on a map of the world.
 
@@ -78,6 +81,8 @@ class LoadingScreen(object):
     def init_gui(self):
         self.window = Toplevel(self.master)
         self.window.title(self.title)
+        icon = PhotoImage(file=os.path.join("/usr/share/icons", "database_comparator.png"))
+        self.window.tk.call("wm", "iconphoto", self.window._w, icon)
         self.window.resizable(0, 0)
         self.window.geometry("{0}x{1}".format(400, 100))
         self.window.configure(bg="#313335")

@@ -19,18 +19,17 @@ database.
     ```postgresql
     CREATE EXTENSION postgis;
     ```
-5. Install `matplotlib`, `numpy` and `basemap` packages for python
+5. Start by executing `dist/Database-Comparator` script
     ```bash
-    pip install matplotlib
+    dist/Database-Comparator
     ```
-    ```bash
-    pip install numpy
-    ```
-    ```bash
-    sudo apt-get install libgeos-dev
-    pip install --user https://github.com/matplotlib/basemap/archive/master.zip
-    ```
-6. Start application by executing `main.py`
+    or start by clicking the desktop icon generated in build step
+
+## Build
+To build application as a shell script and generate Desktop icon start `build_application.sh` script
+```bash
+ sudo ./build_application
+```
 
 ## Generating Dbcom files
 To generate `dbcom` files containing geo-spatial coordinates you can start python script `points_generator.py`.

@@ -1,4 +1,6 @@
+import os
 from tkinter import *
+from tkinter import PhotoImage
 
 from actions.delete_multiple import DeleteMultiple
 from actions.delete_single import DeleteSingle
@@ -13,7 +15,9 @@ from utils.gui_utils import show_help
 
 class Program(object):
     def __init__(self):
-        self.window = Tk()
+        self.window = Tk(className="Database Comparator")
+        icon = PhotoImage(file=os.path.join("/usr/share/icons", "database_comparator.png"))
+        self.window.tk.call("wm", "iconphoto", self.window._w, icon)
         self.window.title("Database Comparator")
         self.window.resizable(0, 0)
         self.window.configure(bg="#313335")

@@ -1,0 +1,154 @@
+Results
+
+Dataset "small.dbcom"
+    - Size: 100 points
+    - Insert Multiple
+        Relational: 300.552 ms
+        Spatial: 307.235 ms
+        Won: Relational
+        Ratio: 1.022
+    - Insert Single
+        Relational: 3.189 ms
+        Spatial: 12.164 ms
+        Won: Relational
+        Ratio: 3.814
+    - Find Multiple
+        Relational: 2.972 ms
+        Spatial: 6.205 ms
+        Won: Relational
+        Ratio: 2.088
+    - Find Single
+        Relational: 3.921 ms
+        Spatial: 14.069 ms
+        Won: Relational
+        Ratio: 3.588
+    - Update Single
+        Relational: 5.265 ms
+        Spatial: 7.489 ms
+        Won: Relational
+        Ratio: 1.422
+    - Delete Multiple
+        Relational: 3.459 ms
+        Spatial: 4.927 ms
+        Won: Relational
+        Ratio: 1.424
+    - Delete Single
+        Relational: 4.110 ms
+        Spatial: 12.801 ms
+        Won: Relational
+        Ratio: 3.115
+
+
+Dataset "medium.dbcom"
+    - Size 1000 points
+    - Insert Multiple
+        Relational: 3366.118 ms
+        Spatial: 3453.021 ms
+        Won: Relational
+        Ratio: 1.026
+    - Insert Single
+        Relational: 3.384 ms
+        Spatial: 11.317 ms
+        Won: Relational
+        Ratio: 3.344
+    - Find Multiple
+        Relational: 2.003 ms
+        Spatial: 6.684 ms
+        Won: Relational
+        Ratio: 3.337
+    - Find Single
+        Relational: 5.027 ms
+        Spatial: 13.262 ms
+        Won: Relational
+        Ratio: 2.638
+    - Update Single
+        Relational: 5.031 ms
+        Spatial: 14.392 ms
+        Won: Relational
+        Ratio: 2.861
+    - Delete Multiple
+        Relational: 1.993 ms
+        Spatial: 4.444 ms
+        Won: Relational
+        Ratio: 2.230
+    - Delete Single
+        Relational: 10.245 ms
+        Spatial: 19.562 ms
+        Won: Relational
+        Ratio: 1.909
+
+
+Dataset "large.dbcom"
+    - Insert Multiple
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Insert Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Find Multiple
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Find Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Update Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Delete Multiple
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Delete Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+
+
+Dataset "extra_large.dbcom"
+    - Insert Multiple
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Insert Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Find Multiple
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Find Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Update Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Delete Multiple
+        Relational:
+        Spatial:
+        Won:
+        Ratio:
+    - Delete Single
+        Relational:
+        Spatial:
+        Won:
+        Ratio:

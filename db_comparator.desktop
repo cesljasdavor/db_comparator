@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Database Comparator
+Comment=Application for comparing spatial and relational databases
+Terminal=false
+Exec=/usr/bin/db_comparator
+Icon=/usr/share/icons/database_comparator.png
+Type=Application
+Categories=System;Database
