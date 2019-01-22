@@ -27,6 +27,27 @@ def reset_database():
             """
         )
 
+        # Create relational table with point object
+        cursor.execute(
+            """
+                DROP TABLE IF EXISTS relational_point_object
+            """
+        )
+        cursor.execute(
+            """
+                CREATE TABLE relational_point_object(
+                    id serial primary key,
+                    point point
+                )
+            """
+        )
+        cursor.execute(
+            """
+                CREATE INDEX relational_point_object_index ON relational_point_object USING GIST (point);
+            """
+        )
+        #
+
         # Create spatial table
         cursor.execute(
             """

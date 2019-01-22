@@ -4,6 +4,7 @@ from tkinter import messagebox
 
 from error.exceptions import InvalidInputException
 from repositories import relational_point_repository as rp_repository
+from repositories import relational_point_object_repository as rpo_repository
 from repositories import spatial_point_repository as sp_repository
 
 
@@ -20,12 +21,18 @@ class UpdateSingle(Action):
         self.relational_error_count_var = StringVar(value="NaN")
         self.relational_time_spent_var = StringVar(value="NaN")
         self.relational_avg_time_per_point_var = StringVar(value="NaN")
+        self.relational_with_point_point_count_var = StringVar(value="NaN")
+        self.relational_with_point_error_count_var = StringVar(value="NaN")
+        self.relational_with_point_time_spent_var = StringVar(value="NaN")
+        self.relational_with_point_avg_time_per_point_var = StringVar(value="NaN")
         self.spatial_point_count_var = StringVar(value="NaN")
         self.spatial_error_count_var = StringVar(value="NaN")
         self.spatial_time_spent_var = StringVar(value="NaN")
         self.spatial_avg_time_per_point_var = StringVar(value="NaN")
-        self.faster_database_var = StringVar(value="None")
-        self.ratio_var = StringVar(value="NaN")
+        self.best_database_var = StringVar(value="None")
+        self.sr_ratio_var = StringVar(value="NaN")
+        self.srpo_ratio_var = StringVar(value="NaN")
+        self.rrpo_ratio_var = StringVar(value="NaN")
 
         self.init_gui()
         self.create_footer()
@@ -166,6 +173,85 @@ class UpdateSingle(Action):
         )
         relational_avg_time_per_point_value.grid(row=3, column=1)
 
+        # Relational with point object
+        relational_with_point_label_frame = LabelFrame(
+            action_statistics_frame,
+            text="Relational database with point objects",
+            labelanchor=N,
+            bg="#313335",
+            fg="#ffffff",
+            pady=10
+        )
+        relational_with_point_label_frame.pack(side=LEFT, fill="both", expand="yes", pady=(15, 0))
+
+        relational_with_point_point_count_label = Label(
+            relational_with_point_label_frame,
+            text="Point count",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_point_count_label.grid(row=0, column=0, sticky=W)
+        relational_with_point_point_count_value = Label(
+            relational_with_point_label_frame,
+            textvariable=self.relational_with_point_point_count_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_point_count_value.grid(row=0, column=1)
+
+        relational_with_point_error_count_label = Label(
+            relational_with_point_label_frame,
+            text="Error count",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_error_count_label.grid(row=1, column=0, sticky=W)
+        relational_with_point_error_count_value = Label(
+            relational_with_point_label_frame,
+            textvariable=self.relational_with_point_error_count_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_error_count_value.grid(row=1, column=1)
+
+        relational_with_point_time_spent_label = Label(
+            relational_with_point_label_frame,
+            text="Time spent",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_time_spent_label.grid(row=2, column=0, sticky=W)
+        relational_with_point_time_spent_value = Label(
+            relational_with_point_label_frame,
+            textvariable=self.relational_with_point_time_spent_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_time_spent_value.grid(row=2, column=1)
+
+        relational_with_point_avg_time_per_point_label = Label(
+            relational_with_point_label_frame,
+            text="Average time per point",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_avg_time_per_point_label.grid(row=3, column=0, sticky=W)
+        relational_with_point_avg_time_per_point_value = Label(
+            relational_with_point_label_frame,
+            textvariable=self.relational_with_point_avg_time_per_point_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        relational_with_point_avg_time_per_point_value.grid(row=3, column=1)
+
         # Spatial
         spatial_label_frame = LabelFrame(
             action_statistics_frame,
@@ -175,7 +261,7 @@ class UpdateSingle(Action):
             fg="#ffffff",
             pady=10
         )
-        spatial_label_frame.pack(side=RIGHT, fill="both", expand="yes", pady=(15, 0))
+        spatial_label_frame.pack(side=LEFT, fill="both", expand="yes", pady=(15, 0))
 
         spatial_point_count_label = Label(
             spatial_label_frame,
@@ -262,39 +348,73 @@ class UpdateSingle(Action):
         action_overall_data_frame = Frame(action_overall_frame, bg="#313335")
         action_overall_data_frame.pack(side=TOP, fill="both", expand="yes")
 
-        faster_database_label = Label(
+        best_database_label = Label(
             action_overall_data_frame,
-            text="Faster database",
+            text="Best database",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        faster_database_label.grid(row=0, column=0, sticky=W)
-        faster_find_database_value = Label(
+        best_database_label.grid(row=0, column=0, sticky=W)
+        best_database_value = Label(
             action_overall_data_frame,
-            textvariable=self.faster_database_var,
+            textvariable=self.best_database_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        faster_find_database_value.grid(row=0, column=1)
+        best_database_value.grid(row=0, column=1)
 
-        percentage_ration_label = Label(
+        sr_ratio_label = Label(
             action_overall_data_frame,
-            text="Ratio",
+            text="Spatial - Relational ratio",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        percentage_ration_label.grid(row=1, column=0, sticky=W)
-        percentage_ratio_value = Label(
+        sr_ratio_label.grid(row=1, column=0, sticky=W)
+        sr_ratio_value = Label(
             action_overall_data_frame,
-            textvariable=self.ratio_var,
+            textvariable=self.sr_ratio_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        percentage_ratio_value.grid(row=1, column=1)
+        sr_ratio_value.grid(row=1, column=1)
+
+        srpo_ratio_label = Label(
+            action_overall_data_frame,
+            text="Spatial - Relational with point objects ratio",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        srpo_ratio_label.grid(row=2, column=0, sticky=W)
+        srpo_ratio_value = Label(
+            action_overall_data_frame,
+            textvariable=self.srpo_ratio_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        srpo_ratio_value.grid(row=2, column=1)
+
+        rrpo_ratio_label = Label(
+            action_overall_data_frame,
+            text="Relational - Relational with point objects ratio",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        rrpo_ratio_label.grid(row=3, column=0, sticky=W)
+        rrpo_ratio_value = Label(
+            action_overall_data_frame,
+            textvariable=self.rrpo_ratio_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        rrpo_ratio_value.grid(row=3, column=1)
 
     def action(self):
         try:
@@ -303,6 +423,7 @@ class UpdateSingle(Action):
             new_x = float(self.new_y_var.get())
             new_y = float(self.new_y_var.get())
             r_error_count, r_points_count, r_time_elapsed = rp_repository.update_point_by_coordinates(old_x, old_y, new_x, new_y)
+            rpo_error_count, rpo_points_count, rpo_time_elapsed = rpo_repository.update_point_by_coordinates(old_x, old_y, new_x, new_y)
             s_error_count, s_points_count, s_time_elapsed = sp_repository.update_point_by_coordinates(old_x, old_y, new_x, new_y)
 
             if r_points_count == 0 and s_points_count == 0:
@@ -323,20 +444,43 @@ class UpdateSingle(Action):
         self.relational_avg_time_per_point_var.set(
             "{0:.3f} ms".format(r_time_elapsed / (r_points_count + r_error_count)))
 
+        self.relational_with_point_error_count_var.set(value=rpo_error_count)
+        self.relational_with_point_point_count_var.set(value=rpo_points_count)
+        self.relational_with_point_time_spent_var.set(value="{0:.3f} ms".format(rpo_time_elapsed))
+        self.relational_with_point_avg_time_per_point_var.set(
+            "{0:.3f} ms".format(rpo_time_elapsed / (rpo_points_count + rpo_error_count)))
+
         self.spatial_error_count_var.set(value=s_error_count)
         self.spatial_point_count_var.set(value=s_points_count)
         self.spatial_time_spent_var.set(value="{0:.3f} ms".format(s_time_elapsed))
         self.spatial_avg_time_per_point_var.set("{0:.3f} ms".format(s_time_elapsed / (s_points_count + s_error_count)))
 
         if r_time_elapsed < s_time_elapsed:
-            faster = "Relational"
-            ratio = s_time_elapsed / r_time_elapsed
+            sr_ratio = s_time_elapsed / r_time_elapsed
         else:
-            faster = "Spatial"
-            ratio = r_time_elapsed / s_time_elapsed
+            sr_ratio = r_time_elapsed / s_time_elapsed
+        self.sr_ratio_var.set(value="{0:.3f}".format(sr_ratio))
 
-        self.faster_database_var.set(value=faster)
-        self.ratio_var.set(value="{0:.3f}".format(ratio))
+        if rpo_time_elapsed < s_time_elapsed:
+            srpo_ratio = s_time_elapsed / rpo_time_elapsed
+        else:
+            srpo_ratio = rpo_time_elapsed / s_time_elapsed
+        self.srpo_ratio_var.set(value="{0:.3f}".format(srpo_ratio))
+
+        if r_time_elapsed < rpo_time_elapsed:
+            rrpo_ratio = rpo_time_elapsed / r_time_elapsed
+        else:
+            rrpo_ratio = r_time_elapsed / rpo_time_elapsed
+        self.rrpo_ratio_var.set(value="{0:.3f}".format(rrpo_ratio))
+
+        if rpo_time_elapsed < r_time_elapsed and rpo_time_elapsed < s_time_elapsed:
+            best = "Relational with point objects"
+        elif r_time_elapsed < rpo_time_elapsed and r_time_elapsed < s_time_elapsed:
+            best = "Relational"
+        else:
+            best = "Spatial"
+
+        self.best_database_var.set(value=best)
 
     def reset_inputs(self):
         self.old_x_var.set(value="")

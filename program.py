@@ -19,7 +19,7 @@ class Program(object):
         icon = PhotoImage(file=os.path.join("/usr/share/icons", "database_comparator.png"))
         self.window.tk.call("wm", "iconphoto", self.window._w, icon)
         self.window.title("Database Comparator")
-        self.window.resizable(0, 0)
+        # self.window.resizable(0, 0)
         self.window.configure(bg="#313335")
         self.window.wm_iconname("database_comparator.png")
         self.setup_menubar()
