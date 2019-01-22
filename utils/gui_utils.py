@@ -27,7 +27,7 @@ Usage
 1. Click on "Actions" menu and pick one of the CRUD operations
 2. Enter necessary parameters
 3. Click "Compare databases" button
-4. View docs
+4. View results
 
 You can click on "Show Map" to visualize coordinates on a map of the world.
 

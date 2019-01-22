@@ -80,75 +80,75 @@ Dataset "medium.dbcom"
 
 Dataset "large.dbcom"
     - Insert Multiple
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 33917.676 ms
+        Spatial: 34192.319 ms
+        Won: Relational
+        Ratio: 1.008
     - Insert Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 1.380 ms
+        Spatial: 4.309 ms
+        Won: Relational
+        Ratio: 3.122
     - Find Multiple
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 4.890 ms
+        Spatial: 10.568 ms
+        Won: Relational
+        Ratio: 2.161
     - Find Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 3.769 ms
+        Spatial: 15.974 ms
+        Won: Relational
+        Ratio: 4.238
     - Update Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 4.910 ms
+        Spatial: 13.557 ms
+        Won: Relational
+        Ratio: 2.761
     - Delete Multiple
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 9.971 ms
+        Spatial: 17.804 ms
+        Won: Relational
+        Ratio: 1.786
     - Delete Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 4.704 ms
+        Spatial: 18.757 ms
+        Won: Relational
+        Ratio: 3.562
 
 
 Dataset "extra_large.dbcom"
     - Insert Multiple
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 345991.476 ms
+        Spatial: 352841.881 ms
+        Won: Relational
+        Ratio: 1.020
     - Insert Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 1.471 ms
+        Spatial: 5.452 ms
+        Won: Relational
+        Ratio: 3.706
     - Find Multiple
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 19.139 ms
+        Spatial: 24.544 ms
+        Won: Relational
+        Ratio: 1.282
     - Find Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 3.653 ms
+        Spatial: 10.954 ms
+        Won: Relational
+        Ratio: 2.999
     - Update Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 4.998 ms
+        Spatial: 9.443 ms
+        Won: Relational
+        Ratio: 1.889
     - Delete Multiple
         Relational:
         Spatial:
         Won:
         Ratio:
     - Delete Single
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 4.632 ms
+        Spatial: 13.596 ms
+        Won: Relational
+        Ratio: 2.935
