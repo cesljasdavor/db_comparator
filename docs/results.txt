@@ -145,10 +145,10 @@ Dataset "extra_large.dbcom"
         Won: Relational
         Ratio: 1.889
     - Delete Multiple
-        Relational:
-        Spatial:
-        Won:
-        Ratio:
+        Relational: 45.010 ms
+        Spatial: 52.759 ms
+        Won: Relational
+        Ratio: 1.172
     - Delete Single
         Relational: 4.632 ms
         Spatial: 13.596 ms
