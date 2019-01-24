@@ -353,48 +353,14 @@ class FindSingle(Action):
         )
         best_database_value.grid(row=0, column=1)
 
-        sr_ratio_label = Label(
-            action_overall_data_frame,
-            text="Spatial - Relational ratio",
-            bg="#313335",
-            fg="#ffffff",
-            padx=20
-        )
-        sr_ratio_label.grid(row=1, column=0, sticky=W)
-        sr_ratio_value = Label(
-            action_overall_data_frame,
-            textvariable=self.sr_ratio_var,
-            bg="#313335",
-            fg="#ffffff",
-            padx=20
-        )
-        sr_ratio_value.grid(row=1, column=1)
-
-        srpo_ratio_label = Label(
-            action_overall_data_frame,
-            text="Spatial - Relational with point objects ratio",
-            bg="#313335",
-            fg="#ffffff",
-            padx=20
-        )
-        srpo_ratio_label.grid(row=2, column=0, sticky=W)
-        srpo_ratio_value = Label(
-            action_overall_data_frame,
-            textvariable=self.srpo_ratio_var,
-            bg="#313335",
-            fg="#ffffff",
-            padx=20
-        )
-        srpo_ratio_value.grid(row=2, column=1)
-
         rrpo_ratio_label = Label(
             action_overall_data_frame,
-            text="Relational - Relational with point objects ratio",
+            text="Relational / Relational with point objects",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        rrpo_ratio_label.grid(row=3, column=0, sticky=W)
+        rrpo_ratio_label.grid(row=1, column=0, sticky=W)
         rrpo_ratio_value = Label(
             action_overall_data_frame,
             textvariable=self.rrpo_ratio_var,
@@ -402,7 +368,41 @@ class FindSingle(Action):
             fg="#ffffff",
             padx=20
         )
-        rrpo_ratio_value.grid(row=3, column=1)
+        rrpo_ratio_value.grid(row=1, column=1)
+
+        sr_ratio_label = Label(
+            action_overall_data_frame,
+            text="Spatial / Relational",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        sr_ratio_label.grid(row=2, column=0, sticky=W)
+        sr_ratio_value = Label(
+            action_overall_data_frame,
+            textvariable=self.sr_ratio_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        sr_ratio_value.grid(row=2, column=1)
+
+        srpo_ratio_label = Label(
+            action_overall_data_frame,
+            text="Spatial / Relational with point objects",
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        srpo_ratio_label.grid(row=3, column=0, sticky=W)
+        srpo_ratio_value = Label(
+            action_overall_data_frame,
+            textvariable=self.srpo_ratio_var,
+            bg="#313335",
+            fg="#ffffff",
+            padx=20
+        )
+        srpo_ratio_value.grid(row=3, column=1)
 
     def action(self):
         try:
@@ -441,23 +441,9 @@ class FindSingle(Action):
         self.spatial_time_spent_var.set(value="{0:.3f} ms".format(s_time_elapsed))
         self.spatial_avg_time_per_point_var.set("{0:.3f} ms".format(s_time_elapsed / (s_points_count + s_error_count)))
 
-        if r_time_elapsed < s_time_elapsed:
-            sr_ratio = s_time_elapsed / r_time_elapsed
-        else:
-            sr_ratio = r_time_elapsed / s_time_elapsed
-        self.sr_ratio_var.set(value="{0:.3f}".format(sr_ratio))
-
-        if rpo_time_elapsed < s_time_elapsed:
-            srpo_ratio = s_time_elapsed / rpo_time_elapsed
-        else:
-            srpo_ratio = rpo_time_elapsed / s_time_elapsed
-        self.srpo_ratio_var.set(value="{0:.3f}".format(srpo_ratio))
-
-        if r_time_elapsed < rpo_time_elapsed:
-            rrpo_ratio = rpo_time_elapsed / r_time_elapsed
-        else:
-            rrpo_ratio = r_time_elapsed / rpo_time_elapsed
-        self.rrpo_ratio_var.set(value="{0:.3f}".format(rrpo_ratio))
+        self.rrpo_ratio_var.set(value="{0:.3f}".format(r_time_elapsed / rpo_time_elapsed))
+        self.sr_ratio_var.set(value="{0:.3f}".format(s_time_elapsed / r_time_elapsed))
+        self.srpo_ratio_var.set(value="{0:.3f}".format(s_time_elapsed / rpo_time_elapsed))
 
         if rpo_time_elapsed < r_time_elapsed and rpo_time_elapsed < s_time_elapsed:
             best = "Relational with point objects"
