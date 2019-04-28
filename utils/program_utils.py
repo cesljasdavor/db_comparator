@@ -70,7 +70,7 @@ def reset_database():
 
         cursor.close()
         connection.commit()
-    except Exception:
+    except Exception as e:
         connection.rollback()
     finally:
         connection.close()
