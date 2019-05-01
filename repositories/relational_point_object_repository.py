@@ -189,7 +189,7 @@ def delete_point_by_coordinates(x, y):
     return errors, deleted, get_milliseconds(start_time, end_time)
 
 
-def delete_points(bottom_left_corner, width, height):
+def delete_points_in_rectangle(bottom_left_corner, width, height):
     if bottom_left_corner is None or width is None or height is None \
             or not isinstance(bottom_left_corner, tuple) \
             or not isinstance(width, float) \
@@ -211,6 +211,39 @@ def delete_points(bottom_left_corner, width, height):
                 bottom_left_corner[1],
                 bottom_left_corner[0] + width,
                 bottom_left_corner[1] + height
+            )
+        )
+        deleted = cursor.rowcount
+        cursor.close()
+        connection.commit()
+    except Exception:
+        errors = 1
+        connection.rollback()
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return errors, deleted, get_milliseconds(start_time, end_time)
+
+
+def delete_points_in_circle(center, radius):
+    if center is None or radius is None or not isinstance(center, tuple) or not isinstance(radius, float):
+        raise InvalidInputException("Please provide circle center and radius!")
+
+    connection = providers.db_connection_provider.get_connection()
+    deleted = 0
+    errors = 0
+    start_time = datetime.now()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+                DELETE FROM relational_point_object 
+                WHERE circle '(({0}, {1}), {2})' @> point;
+            """. format(
+                center[0],
+                center[1],
+                radius
             )
         )
         deleted = cursor.rowcount
@@ -280,7 +313,7 @@ def find_point_by_coordinates(x, y):
     return errors, found, get_milliseconds(start_time, end_time)
 
 
-def find_points(bottom_left_corner, width, height):
+def find_points_in_rectangle(bottom_left_corner, width, height):
     if bottom_left_corner is None or width is None or height is None \
             or not isinstance(bottom_left_corner, tuple) \
             or not isinstance(width, float) \
@@ -313,3 +346,34 @@ def find_points(bottom_left_corner, width, height):
         connection.close()
 
     return errors, found, get_milliseconds(start_time, end_time)
+
+
+def find_points_in_circle(center, radius):
+    if center is None or radius is None or not isinstance(center, tuple) or not isinstance(radius, float):
+        raise InvalidInputException("Please provide circle center and radius!")
+
+    connection = providers.db_connection_provider.get_connection()
+    found = 0
+    errors = 0
+    start_time = datetime.now()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+                SELECT * FROM relational_point_object WHERE circle '(({0}, {1}), {2})' @> point;
+            """. format(
+                center[0],
+                center[1],
+                radius
+            )
+        )
+        found = cursor.rowcount
+        cursor.close()
+    except Exception:
+        errors = 1
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return errors, found, get_milliseconds(start_time, end_time)
+

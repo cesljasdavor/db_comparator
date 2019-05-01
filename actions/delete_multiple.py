@@ -9,7 +9,7 @@ from repositories import spatial_point_repository as sp_repository
 from utils.gui_utils import LoadingScreen
 
 
-class DeleteMultiple(Action):
+class DeleteMultipleRectangle(Action):
 
     def __init__(self, window):
         super().__init__(window)
@@ -39,8 +39,8 @@ class DeleteMultiple(Action):
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Delete Multiple", anchor=CENTER, font=('Courier', 20), bg="#313335",
-                             fg="#ffffff")
+        action_title = Label(self.window, text="Delete Multiple - Rectangle", anchor=CENTER, font=('Courier', 20),
+                             bg="#313335", fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
         input_frame = Frame(self.window, bg="#313335")
@@ -433,15 +433,27 @@ class DeleteMultiple(Action):
 
         loading_screen = LoadingScreen(self.window, "Deleting from database", "Initializing...")
         loading_screen.set_message("Deleting points from relational database...")
-        r_error_count, r_points_count, r_time_elapsed = rp_repository.delete_points(bottom_left_corner, width, height)
+        r_error_count, r_points_count, r_time_elapsed = rp_repository.delete_points_in_rectangle(
+            bottom_left_corner,
+            width,
+            height
+        )
         loading_screen.set_message("Points deleted from relational database.")
         loading_screen.set_progress_value(33.33)
         loading_screen.set_message("Deleting points from relational database with point objects...")
-        rpo_error_count, rpo_points_count, rpo_time_elapsed = rpo_repository.delete_points(bottom_left_corner, width, height)
+        rpo_error_count, rpo_points_count, rpo_time_elapsed = rpo_repository.delete_points_in_rectangle(
+            bottom_left_corner,
+            width,
+            height
+        )
         loading_screen.set_message("Points deleted from relational database with point objects.")
         loading_screen.set_progress_value(66.66)
         loading_screen.set_message("Deleting points from spatial database...")
-        s_error_count, s_points_count, s_time_elapsed = sp_repository.delete_points(bottom_left_corner, width, height)
+        s_error_count, s_points_count, s_time_elapsed = sp_repository.delete_points_in_rectangle(
+            bottom_left_corner,
+            width,
+            height
+        )
         loading_screen.set_message("Points deleted from spatial database.")
         loading_screen.set_progress_value(100.0)
         loading_screen.set_message("Done.")

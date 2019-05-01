@@ -2,9 +2,9 @@ import os
 from tkinter import *
 from tkinter import PhotoImage
 
-from actions.delete_multiple import DeleteMultiple
+from actions.delete_multiple import DeleteMultipleRectangle
 from actions.delete_single import DeleteSingle
-from actions.find_multiple import FindMultiple
+from actions.find_multiple import FindMultipleRectangle
 from actions.find_single import FindSingle
 from actions.insert_multiple import InsertMultiple
 from actions.insert_single import InsertSingle
@@ -25,7 +25,7 @@ class Program(object):
         self.setup_menubar()
 
         # Initialize window
-        FindMultiple(self.window)
+        FindMultipleRectangle(self.window)
 
     def start(self):
         self.window.mainloop()
@@ -53,9 +53,11 @@ class Program(object):
         action_menu.add_command(label="Insert multiple", command=self.insert_multiple)
         action_menu.add_command(label="Insert single", command=self.insert_single)
         action_menu.add_command(label="Update single", command=self.update_single)
-        action_menu.add_command(label="Delete multiple", command=self.delete_multiple)
+        action_menu.add_command(label="Delete multiple - Rectangle", command=self.delete_multiple_rectangle)
+        action_menu.add_command(label="Delete multiple - Circle", command=self.delete_multiple_circle)
         action_menu.add_command(label="Delete single", command=self.delete_single)
-        action_menu.add_command(label="Find multiple", command=self.find_multiple)
+        action_menu.add_command(label="Find multiple - Rectangle", command=self.find_multiple_rectangle)
+        action_menu.add_command(label="Find multiple - Circle", command=self.find_multiple_circle)
         action_menu.add_command(label="Find single", command=self.find_single)
         action_menu.add_separator()
         action_menu.add_command(label="Reset database", command=perform_database_reset)
@@ -74,14 +76,20 @@ class Program(object):
     def update_single(self):
         UpdateSingle(self.window)
 
-    def delete_multiple(self):
-        DeleteMultiple(self.window)
+    def delete_multiple_rectangle(self):
+        DeleteMultipleRectangle(self.window)
+
+    def delete_multiple_circle(self):
+        pass
 
     def delete_single(self):
         DeleteSingle(self.window)
 
-    def find_multiple(self):
-        FindMultiple(self.window)
+    def find_multiple_rectangle(self):
+        FindMultipleRectangle(self.window)
+
+    def find_multiple_circle(self):
+        pass
 
     def find_single(self):
         FindSingle(self.window)

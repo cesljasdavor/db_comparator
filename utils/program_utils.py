@@ -68,6 +68,20 @@ def reset_database():
             """
         )
 
+        # Create functions
+        cursor.execute(
+            """
+                create or replace function circle_contains(x float, y float, c_x float, c_y float, r float) returns boolean as $contains$
+                declare
+                    contains boolean;
+                begin
+                    contains = |/((x - c_x)^2 + (y - c_y)^2) <= r;
+                    return contains;
+                end;
+                $contains$ LANGUAGE plpgsql;
+            """
+        )
+
         cursor.close()
         connection.commit()
     except Exception as e:
