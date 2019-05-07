@@ -225,6 +225,45 @@ def delete_points_in_rectangle(bottom_left_corner, width, height):
     return errors, deleted, get_milliseconds(start_time, end_time)
 
 
+def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
+    if bottom_left_corner is None or width is None or height is None or angle is None \
+            or not isinstance(bottom_left_corner, tuple) \
+            or not isinstance(width, float) \
+            or not isinstance(height, float)\
+            or not isinstance(angle, float):
+        raise InvalidInputException("Please provide bottom left corner point, width, height and angle of rectangle!")
+
+    connection = providers.db_connection_provider.get_connection()
+    deleted = 0
+    errors = 0
+    start_time = datetime.now()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+                DELETE FROM relational_point
+                WHERE rotated_rectangle_contains(x, y, {0}, {1}, {2}, {3}, {4})
+            """.format(
+                bottom_left_corner[0],
+                bottom_left_corner[1],
+                width,
+                height,
+                angle
+            )
+        )
+        deleted = cursor.rowcount
+        cursor.close()
+        connection.commit()
+    except Exception:
+        errors = 1
+        connection.rollback()
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return errors, deleted, get_milliseconds(start_time, end_time)
+
+
 def delete_points_in_circle(center, radius):
     if center is None or radius is None or not isinstance(center, tuple) or not isinstance(radius, float):
         raise InvalidInputException("Please provide circle center and radius!")
@@ -333,6 +372,43 @@ def find_points_in_rectangle(bottom_left_corner, width, height):
                 bottom_left_corner[0] + width,
                 bottom_left_corner[1],
                 bottom_left_corner[1] + height
+            )
+        )
+        found = cursor.rowcount
+        cursor.close()
+    except Exception:
+        errors = 1
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return errors, found, get_milliseconds(start_time, end_time)
+
+
+def find_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
+    if bottom_left_corner is None or width is None or height is None or angle is None \
+            or not isinstance(bottom_left_corner, tuple) \
+            or not isinstance(width, float) \
+            or not isinstance(height, float)\
+            or not isinstance(angle, float):
+        raise InvalidInputException("Please provide bottom left corner point, width, height and angle of rectangle!")
+
+    connection = providers.db_connection_provider.get_connection()
+    found = 0
+    errors = 0
+    start_time = datetime.now()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+                SELECT * FROM relational_point
+                WHERE rotated_rectangle_contains(x, y, {0}, {1}, {2}, {3}, {4})
+            """.format(
+                bottom_left_corner[0],
+                bottom_left_corner[1],
+                width,
+                height,
+                angle
             )
         )
         found = cursor.rowcount

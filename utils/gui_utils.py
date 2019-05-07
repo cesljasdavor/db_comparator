@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Progressbar
 
-from utils.program_utils import reset_database, get_all_points
+from utils.program_utils import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
@@ -38,12 +38,23 @@ All rights reserved ®
     help_message.pack()
 
 
-def show_map():
-    points = get_all_points()
+def show_map(table_name=None):
+    if table_name == "r":
+        points = get_all_relational_points()
+        figure_name = "Relational Point Map"
+    elif table_name == "rpo":
+        points = get_all_relational_object_points()
+        figure_name = "Relational Point Object Map"
+    elif table_name == "s":
+        points = get_all_spatial_points()
+        figure_name = "Spatial Point Map"
+    else:
+        raise Exception("No table with name '{0}'".format(table_name))
+
     x_coordinates = [point.x for point in points]
     y_coordinates = [point.y for point in points]
 
-    plt.figure(num="Map", figsize=(12, 8), edgecolor="grey")
+    plt.figure(num=figure_name, figsize=(12, 8), edgecolor="grey")
     plt.xlabel("Longitude")
     plt.xlim((-180.0, 180.0))
     plt.ylabel("Latitude")

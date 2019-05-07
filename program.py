@@ -2,9 +2,13 @@ import os
 from tkinter import *
 from tkinter import PhotoImage
 
-from actions.delete_multiple import DeleteMultipleRectangle
+from actions.delete_multiple_circle import DeleteMultipleCircle
+from actions.delete_multiple_rectangle import DeleteMultipleRectangle
+from actions.delete_multiple_rotated_rectangle import DeleteMultipleRotatedRectangle
 from actions.delete_single import DeleteSingle
-from actions.find_multiple import FindMultipleRectangle
+from actions.find_multiple_circle import FindMultipleCircle
+from actions.find_multiple_rectangle import FindMultipleRectangle
+from actions.find_multiple_rotated_rectangle import FindMultipleRotatedRectangle
 from actions.find_single import FindSingle
 from actions.insert_multiple import InsertMultiple
 from actions.insert_single import InsertSingle
@@ -41,6 +45,7 @@ class Program(object):
         )
         self.window.config(menu=menubar)
 
+        # Actions
         action_menu = Menu(
             menubar,
             tearoff=0,
@@ -54,16 +59,32 @@ class Program(object):
         action_menu.add_command(label="Insert single", command=self.insert_single)
         action_menu.add_command(label="Update single", command=self.update_single)
         action_menu.add_command(label="Delete multiple - Rectangle", command=self.delete_multiple_rectangle)
+        action_menu.add_command(label="Delete multiple - Rotated Rectangle", command=self.delete_multiple_rotated_rectangle)
         action_menu.add_command(label="Delete multiple - Circle", command=self.delete_multiple_circle)
         action_menu.add_command(label="Delete single", command=self.delete_single)
         action_menu.add_command(label="Find multiple - Rectangle", command=self.find_multiple_rectangle)
+        action_menu.add_command(label="Find multiple - Rotated Rectangle", command=self.find_multiple_rotated_rectangle)
         action_menu.add_command(label="Find multiple - Circle", command=self.find_multiple_circle)
         action_menu.add_command(label="Find single", command=self.find_single)
         action_menu.add_separator()
         action_menu.add_command(label="Reset database", command=perform_database_reset)
 
+        # Maps
+        map_menu = Menu(
+            menubar,
+            tearoff=0,
+            bg="#212325",
+            activebackground="#313335",
+            fg="#ffffff",
+            activeforeground="#ffffff",
+            bd=5
+        )
+        map_menu.add_command(label="Relational", command=lambda: show_map("r"))
+        map_menu.add_command(label="Relational with point object", command=lambda: show_map("rpo"))
+        map_menu.add_command(label="Spatial", command=lambda: show_map("s"))
+
         menubar.add_cascade(label="Actions", menu=action_menu)
-        menubar.add_command(label="Show Map", command=show_map)
+        menubar.add_cascade(label="Maps", menu=map_menu)
         menubar.add_command(label="Help", command=show_help)
         menubar.add_command(label="Exit", command=self.exit_app)
 
@@ -79,8 +100,11 @@ class Program(object):
     def delete_multiple_rectangle(self):
         DeleteMultipleRectangle(self.window)
 
+    def delete_multiple_rotated_rectangle(self):
+        DeleteMultipleRotatedRectangle(self.window)
+
     def delete_multiple_circle(self):
-        pass
+        DeleteMultipleCircle(self.window)
 
     def delete_single(self):
         DeleteSingle(self.window)
@@ -88,8 +112,11 @@ class Program(object):
     def find_multiple_rectangle(self):
         FindMultipleRectangle(self.window)
 
+    def find_multiple_rotated_rectangle(self):
+        FindMultipleRotatedRectangle(self.window)
+
     def find_multiple_circle(self):
-        pass
+        FindMultipleCircle(self.window)
 
     def find_single(self):
         FindSingle(self.window)
