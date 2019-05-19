@@ -15,7 +15,6 @@ def reset_database():
         cursor.execute(
             """
                 CREATE TABLE relational_point(
-                    id serial primary key,
                     x double precision,
                     y double precision
                 )
@@ -23,48 +22,46 @@ def reset_database():
         )
         cursor.execute(
             """
-                CREATE INDEX relational_point_x_y_index ON relational_point (x, y)
+                CREATE INDEX relational_point_index ON relational_point (x, y)
             """
         )
 
-        # Create relational table with point object
+        # Create spatial core table
         cursor.execute(
             """
-                DROP TABLE IF EXISTS relational_point_object
+                DROP TABLE IF EXISTS spatial_core_point
             """
         )
         cursor.execute(
             """
-                CREATE TABLE relational_point_object(
-                    id serial primary key,
+                CREATE TABLE spatial_core_point(
                     point point
                 )
             """
         )
         cursor.execute(
             """
-                CREATE INDEX relational_point_object_index ON relational_point_object USING GIST (point);
+                CREATE INDEX spatial_core_point_index ON spatial_core_point USING GIST (point);
             """
         )
         #
 
-        # Create spatial table
+        # Create spatial PostGIS table
         cursor.execute(
             """
-                DROP TABLE IF EXISTS spatial_point
+                DROP TABLE IF EXISTS spatial_postgis_point
             """
         )
         cursor.execute(
             """
-                CREATE TABLE spatial_point(
-                    id serial primary key,
+                CREATE TABLE spatial_postgis_point(
                     point geometry(POINT, 4326)
                 )
             """
         )
         cursor.execute(
             """
-                CREATE INDEX spatial_point_geometry_index ON spatial_point USING GIST (point);
+                CREATE INDEX spatial_postgis_point_index ON spatial_postgis_point USING GIST (point);
             """
         )
 
@@ -122,21 +119,6 @@ def reset_database():
             """
         )
 
-        cursor.execute(
-            """
-                create or replace function rotated_rectangle_contains(p geometry, b geometry, angle float) returns boolean as $contains$
-                declare
-                    contains boolean;
-                    rotated_p geometry;
-                begin
-                    rotated_p = st_rotate(p, radians(-angle));
-                    contains = st_contains(b, rotated_p);
-                    return contains;
-                end;
-                $contains$ LANGUAGE plpgsql
-            """
-        )
-
         cursor.close()
         connection.commit()
     except Exception as e:
@@ -159,12 +141,12 @@ def get_all_relational_points():
         connection.close()
 
 
-def get_all_relational_object_points():
+def get_all_spatial_core_points():
     connection = providers.db_connection_provider.get_connection()
     try:
         cursor = connection.cursor()
         cursor.execute("""
-            SELECT p.id id, p.point[0] x, p.point[1] y FROM relational_point_object p
+            SELECT p.point[0] x, p.point[1] y FROM spatial_core_point p
         """)
         return map_to_points(cursor.fetchall())
     except Exception:
@@ -173,12 +155,12 @@ def get_all_relational_object_points():
         connection.close()
 
 
-def get_all_spatial_points():
+def get_all_spatial_postgis_points():
     connection = providers.db_connection_provider.get_connection()
     try:
         cursor = connection.cursor()
         cursor.execute("""
-            SELECT p.id id, st_x(p.point) x, st_y(p.point) y FROM spatial_point p
+            SELECT st_x(p.point) x, st_y(p.point) y FROM spatial_postgis_point p
         """)
         return map_to_points(cursor.fetchall())
     except Exception:

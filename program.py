@@ -12,6 +12,9 @@ from actions.find_multiple_rotated_rectangle import FindMultipleRotatedRectangle
 from actions.find_single import FindSingle
 from actions.insert_multiple import InsertMultiple
 from actions.insert_single import InsertSingle
+from actions.update_multiple_circle import UpdateMultipleCircle
+from actions.update_multiple_rectangle import UpdateMultipleRectangle
+from actions.update_multiple_rotated_rectangle import UpdateMultipleRotatedRectangle
 from actions.update_single import UpdateSingle
 from utils.gui_utils import perform_database_reset, show_map
 from utils.gui_utils import show_help
@@ -55,17 +58,23 @@ class Program(object):
             activeforeground="#ffffff",
             bd=5
         )
-        action_menu.add_command(label="Insert multiple", command=self.insert_multiple)
         action_menu.add_command(label="Insert single", command=self.insert_single)
+        action_menu.add_command(label="Insert multiple", command=self.insert_multiple)
+        action_menu.add_separator()
         action_menu.add_command(label="Update single", command=self.update_single)
+        action_menu.add_command(label="Update multiple - Rectangle", command=self.update_multiple_rectangle)
+        action_menu.add_command(label="Update multiple - Rotated Rectangle", command=self.update_multiple_rotated_rectangle)
+        action_menu.add_command(label="Update multiple - Circle", command=self.update_multiple_circle)
+        action_menu.add_separator()
+        action_menu.add_command(label="Delete single", command=self.delete_single)
         action_menu.add_command(label="Delete multiple - Rectangle", command=self.delete_multiple_rectangle)
         action_menu.add_command(label="Delete multiple - Rotated Rectangle", command=self.delete_multiple_rotated_rectangle)
         action_menu.add_command(label="Delete multiple - Circle", command=self.delete_multiple_circle)
-        action_menu.add_command(label="Delete single", command=self.delete_single)
+        action_menu.add_separator()
+        action_menu.add_command(label="Find single", command=self.find_single)
         action_menu.add_command(label="Find multiple - Rectangle", command=self.find_multiple_rectangle)
         action_menu.add_command(label="Find multiple - Rotated Rectangle", command=self.find_multiple_rotated_rectangle)
         action_menu.add_command(label="Find multiple - Circle", command=self.find_multiple_circle)
-        action_menu.add_command(label="Find single", command=self.find_single)
         action_menu.add_separator()
         action_menu.add_command(label="Reset database", command=perform_database_reset)
 
@@ -80,8 +89,8 @@ class Program(object):
             bd=5
         )
         map_menu.add_command(label="Relational", command=lambda: show_map("r"))
-        map_menu.add_command(label="Relational with point object", command=lambda: show_map("rpo"))
-        map_menu.add_command(label="Spatial", command=lambda: show_map("s"))
+        map_menu.add_command(label="Spatial Core", command=lambda: show_map("sc"))
+        map_menu.add_command(label="Spatial PostGIS", command=lambda: show_map("sp"))
 
         menubar.add_cascade(label="Actions", menu=action_menu)
         menubar.add_cascade(label="Maps", menu=map_menu)
@@ -96,6 +105,15 @@ class Program(object):
 
     def update_single(self):
         UpdateSingle(self.window)
+
+    def update_multiple_rectangle(self):
+        UpdateMultipleRectangle(self.window)
+
+    def update_multiple_rotated_rectangle(self):
+        UpdateMultipleRotatedRectangle(self.window)
+
+    def update_multiple_circle(self):
+        UpdateMultipleCircle(self.window)
 
     def delete_multiple_rectangle(self):
         DeleteMultipleRectangle(self.window)

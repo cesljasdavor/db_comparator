@@ -1,22 +1,23 @@
-from threading import Thread
-
 from actions.action import Action
-from tkinter import filedialog
 from tkinter import *
 from tkinter import messagebox
 
+from error.exceptions import InvalidInputException
 from repositories import relational_point_repository as rp_repository
 from repositories import spatial_core_repository as scp_repository
 from repositories import spatial_postgis_point_repository as spp_repository
-from parsers.dbcom_parser import DbcomParser
 from utils.gui_utils import LoadingScreen
 
 
-class InsertMultiple(Action):
+class UpdateMultipleCircle(Action):
 
     def __init__(self, window):
         super().__init__(window)
 
+        self.center_x_var = StringVar()
+        self.center_y_var = StringVar()
+        self.radius_var = StringVar()
+        self.step_var = StringVar()
         self.relational_point_count_var = StringVar(value="NaN")
         self.relational_error_count_var = StringVar(value="NaN")
         self.relational_time_spent_var = StringVar(value="NaN")
@@ -33,33 +34,41 @@ class InsertMultiple(Action):
         self.rsp_ratio_var = StringVar(value="NaN")
         self.spsc_ratio_var = StringVar(value="NaN")
         self.rsc_ratio_var = StringVar(value="NaN")
-        self.points = None
 
         self.init_gui()
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Insert Multiple", anchor=CENTER, font=('Courier', 20), bg="#313335",
-                             fg="#ffffff")
+        action_title = Label(self.window, text="Update Multiple - Circle", anchor=CENTER, font=('Courier', 20),
+                             bg="#313335", fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
         input_frame = Frame(self.window, bg="#313335")
         input_frame.pack(side=TOP, pady=(15, 10), padx=(10, 10))
 
-        action_button_frame = Frame(self.window, bg="#313335")
-        action_button_frame.pack(side=TOP, pady=(10, 15), padx=(10, 10))
+        center_x_label = Label(input_frame, text="Center X", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        center_x_label.pack(side=LEFT)
+        center_x_entry = Entry(input_frame, textvariable=self.center_x_var, width=15)
+        center_x_entry.pack(side=LEFT)
 
-        load_button = Button(
-            action_button_frame,
-            text="Load points",
-            command=self.perform_load_points,
-            bg="#0069d9",
-            activebackground="#036cdc",
-            fg="#ffffff",
-            activeforeground="#ffffff",
-            bd=0
-        )
-        load_button.pack(side=LEFT, pady=(0, 15), padx=(10, 10))
+        center_y_label = Label(input_frame, text="Center Y", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        center_y_label.pack(side=LEFT)
+        center_y_entry = Entry(input_frame, textvariable=self.center_y_var, width=15)
+        center_y_entry.pack(side=LEFT)
+
+        radius_label = Label(input_frame, text="Radius", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        radius_label.pack(side=LEFT)
+        radius_entry = Entry(input_frame, textvariable=self.radius_var, width=15)
+        radius_entry.pack(side=LEFT)
+
+        step_label = Label(input_frame, text="Step", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        step_label.pack(side=LEFT)
+        step_entry = Entry(input_frame, textvariable=self.step_var, width=15)
+        step_entry.pack(side=LEFT)
+
+        action_button_frame = Frame(self.window, bg="#313335")
+        action_button_frame.pack(side=TOP, pady=(10, 15))
+
         action_button = Button(
             action_button_frame,
             text="Compare databases",
@@ -70,7 +79,7 @@ class InsertMultiple(Action):
             activeforeground="#ffffff",
             bd=0
         )
-        action_button.pack(side=LEFT, pady=(0, 15))
+        action_button.pack(side=BOTTOM, pady=(0, 15))
 
         # Statistics
         action_statistics_frame = Frame(self.window, bg="#313335")
@@ -409,22 +418,31 @@ class InsertMultiple(Action):
         spsc_ratio_value.grid(row=3, column=1)
 
     def action(self):
-        if self.points is None:
-            messagebox.showerror(title="No points", message="No points loaded! Please load points first.")
+        try:
+            center = (float(self.center_x_var.get()), float(self.center_y_var.get()))
+            radius = float(self.radius_var.get())
+            step = float(self.step_var.get())
+        except InvalidInputException as e:
+            messagebox.showerror(title="Invalid input", message=str(e))
+            self.reset_inputs()
+            return
+        except Exception:
+            messagebox.showerror(title="Invalid input", message="'center x', 'center y', 'radius' and 'step' must be floats")
+            self.reset_inputs()
             return
 
-        loading_screen = LoadingScreen(self.window, "Inserting to database", "Initializing...")
-        loading_screen.set_message("Inserting points to relational database...")
-        r_error_count, r_points_count, r_time_elapsed = rp_repository.insert_points(self.points)
-        loading_screen.set_message("Points inserted to relational database.")
+        loading_screen = LoadingScreen(self.window, "Updating database", "Initializing...")
+        loading_screen.set_message("Updating points in relational database...")
+        r_error_count, r_points_count, r_time_elapsed = rp_repository.update_points_in_circle(center, radius, step)
+        loading_screen.set_message("Points updated in relational database.")
         loading_screen.set_progress_value(33.33)
-        loading_screen.set_message("Inserting points to spatial Core database...")
-        sc_error_count, sc_points_count, sc_time_elapsed = scp_repository.insert_points(self.points)
-        loading_screen.set_message("Points inserted to spatial Core database.")
+        loading_screen.set_message("Updating points in spatial Core database...")
+        sc_error_count, sc_points_count, sc_time_elapsed = scp_repository.update_points_in_circle(center, radius, step)
+        loading_screen.set_message("Points updated in spatial Core database.")
         loading_screen.set_progress_value(66.66)
-        loading_screen.set_message("Inserting points to spatial PostGIS database...")
-        sp_error_count, sp_points_count, sp_time_elapsed = spp_repository.insert_points(self.points)
-        loading_screen.set_message("Points inserted to spatial PostGIS database.")
+        loading_screen.set_message("Updating points in spatial PostGIS database...")
+        sp_error_count, sp_points_count, sp_time_elapsed = spp_repository.update_points_in_circle(center, radius, step)
+        loading_screen.set_message("Points updated in spatial PostGIS database.")
         loading_screen.set_progress_value(100.0)
         loading_screen.set_message("Done.")
         loading_screen.close()
@@ -469,22 +487,8 @@ class InsertMultiple(Action):
 
         self.best_database_var.set(value=best)
 
-    def perform_load_points(self):
-        thread = Thread(target=self.load_points)
-        thread.start()
-
-    def load_points(self):
-        file_name = filedialog.askopenfilename(
-            initialdir=".",
-            title="Select file",
-            filetypes=[("Database comparator file", "*.dbcom")]
-        )
-        if file_name is None or len(file_name) == 0:
-            return
-
-        try:
-            parser = DbcomParser(file_name)
-            parser.parse()
-            self.points = parser.points
-        except Exception:
-            messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
+    def reset_inputs(self):
+        self.center_x_var.set(value="")
+        self.center_y_var.set(value="")
+        self.radius_var.set(value="")
+        self.step_var.set(value="")

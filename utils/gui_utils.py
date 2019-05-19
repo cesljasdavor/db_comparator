@@ -42,12 +42,12 @@ def show_map(table_name=None):
     if table_name == "r":
         points = get_all_relational_points()
         figure_name = "Relational Point Map"
-    elif table_name == "rpo":
-        points = get_all_relational_object_points()
-        figure_name = "Relational Point Object Map"
-    elif table_name == "s":
-        points = get_all_spatial_points()
-        figure_name = "Spatial Point Map"
+    elif table_name == "sc":
+        points = get_all_spatial_core_points()
+        figure_name = "Spatial Core Point Map"
+    elif table_name == "sp":
+        points = get_all_spatial_postgis_points()
+        figure_name = "Spatial PostGIS Point Map"
     else:
         raise Exception("No table with name '{0}'".format(table_name))
 

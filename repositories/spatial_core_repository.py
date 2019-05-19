@@ -11,26 +11,26 @@ def insert_point(x, y):
 
     connection = providers.db_connection_provider.get_connection()
     inserted = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                INSERT INTO relational_point_object (point) VALUES (point({0}, {1}))
+                INSERT INTO spatial_core_point (point) VALUES (point({0}, {1}))
             """.format(x, y)
         )
         inserted = cursor.rowcount
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, inserted, get_milliseconds(start_time, end_time)
+    return has_errors, inserted, get_milliseconds(start_time, end_time)
 
 
 def insert_points(points):
@@ -39,7 +39,7 @@ def insert_points(points):
 
     connection = providers.db_connection_provider.get_connection()
     inserted = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         for x, y in points:
@@ -47,117 +47,173 @@ def insert_points(points):
                 cursor = connection.cursor()
                 cursor.execute(
                     """
-                        INSERT INTO relational_point_object (point) VALUES (point({0}, {1}))
+                        INSERT INTO spatial_core_point (point) VALUES (point({0}, {1}))
                     """.format(x, y)
                 )
                 inserted += cursor.rowcount
                 cursor.close()
                 connection.commit()
             except Exception:
-                errors += 1
+                has_errors = True
                 connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, inserted, get_milliseconds(start_time, end_time)
+    return has_errors, inserted, get_milliseconds(start_time, end_time)
 
 
-def update_point(point_id, new_x, new_y):
-    if point_id is None or new_x is None or new_y is None \
-            or not isinstance(point_id, int) \
-            or not isinstance(new_x, float) \
-            or not isinstance(new_y, float):
-        print(point_id, new_x, new_y)
-        raise InvalidInputException("Please provide 'id' for existing point, and new 'x' and 'y' values")
-
-    connection = providers.db_connection_provider.get_connection()
-    updated = 0
-    errors = 0
-    start_time = datetime.now()
-    try:
-        cursor = connection.cursor()
-        cursor.execute(
-            """
-                UPDATE relational_point_object
-                SET point = point({0}, {1})
-                WHERE id = {2}
-            """.format(new_x, new_y, point_id)
-        )
-        updated = cursor.rowcount
-        cursor.close()
-        connection.commit()
-    except Exception:
-        errors = 1
-        connection.rollback()
-    finally:
-        end_time = datetime.now()
-        connection.close()
-
-    return errors, updated, get_milliseconds(start_time, end_time)
-
-
-def update_point_by_coordinates(x, y, new_x, new_y):
-    if x is None or y is None or new_x is None or new_y is None \
+def update_point_by_coordinates(x, y, step):
+    if x is None or y is None or step is None \
             or not isinstance(x, float) \
             or not isinstance(y, float) \
-            or not isinstance(new_x, float) \
-            or not isinstance(new_y, float):
-        raise InvalidInputException("Please provide 'x' and 'y' values for existing point and new 'x' and 'y' values")
+            or not isinstance(step, float):
+        raise InvalidInputException("Please provide 'x' and 'y' values for existing point and update step.")
 
     connection = providers.db_connection_provider.get_connection()
     updated = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                UPDATE relational_point_object
-                SET point = point({0}, {1})
-                WHERE point ~= point({2}, {3})
-            """.format(new_x, new_y, x, y)
+                UPDATE spatial_core_point
+                SET point = point(point[0] + {0}, point[1] + {0})
+                WHERE point ~= point({1}, {2})
+            """.format(step, x, y)
         )
         updated = cursor.rowcount
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, updated, get_milliseconds(start_time, end_time)
+    return has_errors, updated, get_milliseconds(start_time, end_time)
 
 
-def delete_point(point_id):
-    if point_id is None or not isinstance(point_id, int):
-        raise InvalidInputException("Please provide 'id' for point")
+def update_points_in_rectangle(bottom_left_corner, width, height, step):
+    if bottom_left_corner is None or width is None or height is None or step is None\
+            or not isinstance(bottom_left_corner, tuple) \
+            or not isinstance(width, float) \
+            or not isinstance(height, float) \
+            or not isinstance(step, float):
+        raise InvalidInputException("Please provide bottom left corner point, width and height of rectangle and update step.")
 
     connection = providers.db_connection_provider.get_connection()
-    deleted = 0
-    errors = 0
+    updated = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                DELETE FROM relational_point_object
-                WHERE id = {0}
-            """.format(point_id)
+                UPDATE spatial_core_point
+                SET point = point(point[0] + {0}, point[1] + {0})
+                WHERE point <@ box(point({1}, {2}), point({3}, {4}))
+            """.format(
+                step,
+                bottom_left_corner[0],
+                bottom_left_corner[1],
+                bottom_left_corner[0] + width,
+                bottom_left_corner[1] + height
+            )
         )
-        deleted = cursor.rowcount
+        updated = cursor.rowcount
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, deleted, get_milliseconds(start_time, end_time)
+    return has_errors, updated, get_milliseconds(start_time, end_time)
+
+
+def update_points_in_rotated_rectangle(bottom_left_corner, width, height, angle, step):
+    if bottom_left_corner is None or width is None or height is None or angle is None or step is None \
+            or not isinstance(bottom_left_corner, tuple) \
+            or not isinstance(width, float) \
+            or not isinstance(height, float)\
+            or not isinstance(angle, float) \
+            or not isinstance(step, float):
+        raise InvalidInputException("Please provide bottom left corner point, width, height and angle of rectangle and update step.")
+
+    connection = providers.db_connection_provider.get_connection()
+    updated = 0
+    has_errors = False
+    start_time = datetime.now()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+                UPDATE spatial_core_point
+                SET point = point(point[0] + {0}, point[1] + {0})
+                WHERE rotated_rectangle_contains(point, box(point({1}, {2}), point({3}, {4})), {5})
+            """.format(
+                step,
+                bottom_left_corner[0],
+                bottom_left_corner[1],
+                bottom_left_corner[0] + width,
+                bottom_left_corner[1] + height,
+                angle
+            )
+        )
+        updated = cursor.rowcount
+        cursor.close()
+        connection.commit()
+    except Exception:
+        has_errors = True
+        connection.rollback()
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return has_errors, updated, get_milliseconds(start_time, end_time)
+
+
+def update_points_in_circle(center, radius, step):
+    if center is None or radius is None or step is None \
+            or not isinstance(center, tuple) \
+            or not isinstance(radius, float) \
+            or not isinstance(step, float):
+        raise InvalidInputException("Please provide circle center and radius and update step.")
+
+    connection = providers.db_connection_provider.get_connection()
+    updated = 0
+    has_errors = False
+    start_time = datetime.now()
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            """
+                UPDATE spatial_core_point
+                SET point = point(point[0] + {0}, point[1] + {0})
+                WHERE circle '(({1}, {2}), {3})' @> point;
+            """. format(
+                step,
+                center[0],
+                center[1],
+                radius
+            )
+        )
+        updated = cursor.rowcount
+        cursor.close()
+        connection.commit()
+    except Exception:
+        has_errors = True
+        connection.rollback()
+    finally:
+        end_time = datetime.now()
+        connection.close()
+
+    return has_errors, updated, get_milliseconds(start_time, end_time)
 
 
 def delete_point_by_coordinates(x, y):
@@ -166,13 +222,13 @@ def delete_point_by_coordinates(x, y):
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                DELETE FROM relational_point_object
+                DELETE FROM spatial_core_point
                 WHERE point ~= point({0}, {1})
             """.format(x, y)
         )
@@ -180,13 +236,13 @@ def delete_point_by_coordinates(x, y):
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, deleted, get_milliseconds(start_time, end_time)
+    return has_errors, deleted, get_milliseconds(start_time, end_time)
 
 
 def delete_points_in_rectangle(bottom_left_corner, width, height):
@@ -198,13 +254,13 @@ def delete_points_in_rectangle(bottom_left_corner, width, height):
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                DELETE FROM relational_point_object
+                DELETE FROM spatial_core_point
                 WHERE point <@ box(point({0}, {1}), point({2}, {3}))
             """.format(
                 bottom_left_corner[0],
@@ -217,13 +273,13 @@ def delete_points_in_rectangle(bottom_left_corner, width, height):
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, deleted, get_milliseconds(start_time, end_time)
+    return has_errors, deleted, get_milliseconds(start_time, end_time)
 
 
 def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
@@ -236,19 +292,19 @@ def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle)
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                DELETE FROM relational_point_object
-                WHERE rotated_rectangle_contains(point, box('(({0}, {1}), ({2}, {3}))'), {4})
+                DELETE FROM spatial_core_point
+                WHERE rotated_rectangle_contains(point, box(point({0}, {1}), point({2}, {3})), {4})
             """.format(
                 bottom_left_corner[0],
                 bottom_left_corner[1],
-                width,
-                height,
+                bottom_left_corner[0] + width,
+                bottom_left_corner[1] + height,
                 angle
             )
         )
@@ -256,13 +312,13 @@ def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle)
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, deleted, get_milliseconds(start_time, end_time)
+    return has_errors, deleted, get_milliseconds(start_time, end_time)
 
 
 def delete_points_in_circle(center, radius):
@@ -271,13 +327,13 @@ def delete_points_in_circle(center, radius):
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                DELETE FROM relational_point_object 
+                DELETE FROM spatial_core_point 
                 WHERE circle '(({0}, {1}), {2})' @> point;
             """. format(
                 center[0],
@@ -289,40 +345,13 @@ def delete_points_in_circle(center, radius):
         cursor.close()
         connection.commit()
     except Exception:
-        errors = 1
+        has_errors = True
         connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, deleted, get_milliseconds(start_time, end_time)
-
-
-def find_point(point_id):
-    if point_id is None or not isinstance(point_id, int):
-        raise InvalidInputException("Please provide 'id' for point")
-
-    connection = providers.db_connection_provider.get_connection()
-    found = 0
-    errors = 0
-    start_time = datetime.now()
-    try:
-        cursor = connection.cursor()
-        cursor.execute(
-            """
-                SELECT * FROM relational_point_object
-                WHERE id = {0}
-            """.format(point_id)
-        )
-        found = cursor.rowcount
-        cursor.close()
-    except Exception:
-        errors = 1
-    finally:
-        end_time = datetime.now()
-        connection.close()
-
-    return errors, found, get_milliseconds(start_time, end_time)
+    return has_errors, deleted, get_milliseconds(start_time, end_time)
 
 
 def find_point_by_coordinates(x, y):
@@ -331,25 +360,25 @@ def find_point_by_coordinates(x, y):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                SELECT * FROM relational_point_object
+                SELECT * FROM spatial_core_point
                 WHERE point ~= point({0}, {1})
             """.format(x, y)
         )
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        errors = 1
+        has_errors = True
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, found, get_milliseconds(start_time, end_time)
+    return has_errors, found, get_milliseconds(start_time, end_time)
 
 
 def find_points_in_rectangle(bottom_left_corner, width, height):
@@ -361,13 +390,13 @@ def find_points_in_rectangle(bottom_left_corner, width, height):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                SELECT * FROM relational_point_object
+                SELECT * FROM spatial_core_point
                 WHERE point <@ box(point({0}, {1}), point({2}, {3}))
             """.format(
                 bottom_left_corner[0],
@@ -379,12 +408,12 @@ def find_points_in_rectangle(bottom_left_corner, width, height):
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        errors = 1
+        has_errors = True
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, found, get_milliseconds(start_time, end_time)
+    return has_errors, found, get_milliseconds(start_time, end_time)
 
 
 def find_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
@@ -397,31 +426,31 @@ def find_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                SELECT * FROM relational_point_object
-                WHERE rotated_rectangle_contains(point, box('(({0}, {1}), ({2}, {3}))'), {4})
+                SELECT * FROM spatial_core_point
+                WHERE rotated_rectangle_contains(point, box(point({0}, {1}), point({2}, {3})), {4})
             """.format(
                 bottom_left_corner[0],
                 bottom_left_corner[1],
-                width,
-                height,
+                bottom_left_corner[0] + width,
+                bottom_left_corner[1] + height,
                 angle
             )
         )
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        errors = 1
+        has_errors = True
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, found, get_milliseconds(start_time, end_time)
+    return has_errors, found, get_milliseconds(start_time, end_time)
 
 
 def find_points_in_circle(center, radius):
@@ -430,13 +459,13 @@ def find_points_in_circle(center, radius):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    errors = 0
+    has_errors = False
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
         cursor.execute(
             """
-                SELECT * FROM relational_point_object WHERE circle '(({0}, {1}), {2})' @> point;
+                SELECT * FROM spatial_core_point WHERE circle '(({0}, {1}), {2})' @> point;
             """. format(
                 center[0],
                 center[1],
@@ -446,10 +475,10 @@ def find_points_in_circle(center, radius):
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        errors = 1
+        has_errors = True
     finally:
         end_time = datetime.now()
         connection.close()
 
-    return errors, found, get_milliseconds(start_time, end_time)
+    return has_errors, found, get_milliseconds(start_time, end_time)
 

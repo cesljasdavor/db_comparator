@@ -1,22 +1,25 @@
-from threading import Thread
-
 from actions.action import Action
-from tkinter import filedialog
 from tkinter import *
 from tkinter import messagebox
 
+from error.exceptions import InvalidInputException
 from repositories import relational_point_repository as rp_repository
 from repositories import spatial_core_repository as scp_repository
 from repositories import spatial_postgis_point_repository as spp_repository
-from parsers.dbcom_parser import DbcomParser
 from utils.gui_utils import LoadingScreen
 
 
-class InsertMultiple(Action):
+class UpdateMultipleRotatedRectangle(Action):
 
     def __init__(self, window):
         super().__init__(window)
 
+        self.x_var = StringVar()
+        self.y_var = StringVar()
+        self.width_var = StringVar()
+        self.height_var = StringVar()
+        self.angle_var = StringVar()
+        self.step_var = StringVar()
         self.relational_point_count_var = StringVar(value="NaN")
         self.relational_error_count_var = StringVar(value="NaN")
         self.relational_time_spent_var = StringVar(value="NaN")
@@ -33,33 +36,51 @@ class InsertMultiple(Action):
         self.rsp_ratio_var = StringVar(value="NaN")
         self.spsc_ratio_var = StringVar(value="NaN")
         self.rsc_ratio_var = StringVar(value="NaN")
-        self.points = None
 
         self.init_gui()
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Insert Multiple", anchor=CENTER, font=('Courier', 20), bg="#313335",
-                             fg="#ffffff")
+        action_title = Label(self.window, text="Update Multiple - Rotated Rectangle", anchor=CENTER, font=('Courier', 20),
+                             bg="#313335", fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
         input_frame = Frame(self.window, bg="#313335")
         input_frame.pack(side=TOP, pady=(15, 10), padx=(10, 10))
 
-        action_button_frame = Frame(self.window, bg="#313335")
-        action_button_frame.pack(side=TOP, pady=(10, 15), padx=(10, 10))
+        x_label = Label(input_frame, text="X", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        x_label.pack(side=LEFT)
+        x_entry = Entry(input_frame, textvariable=self.x_var, width=15)
+        x_entry.pack(side=LEFT)
 
-        load_button = Button(
-            action_button_frame,
-            text="Load points",
-            command=self.perform_load_points,
-            bg="#0069d9",
-            activebackground="#036cdc",
-            fg="#ffffff",
-            activeforeground="#ffffff",
-            bd=0
-        )
-        load_button.pack(side=LEFT, pady=(0, 15), padx=(10, 10))
+        y_label = Label(input_frame, text="Y", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        y_label.pack(side=LEFT)
+        y_entry = Entry(input_frame, textvariable=self.y_var, width=15)
+        y_entry.pack(side=LEFT)
+
+        width_label = Label(input_frame, text="Width", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        width_label.pack(side=LEFT)
+        width_entry = Entry(input_frame, textvariable=self.width_var, width=15)
+        width_entry.pack(side=LEFT)
+
+        height_label = Label(input_frame, text="Height", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        height_label.pack(side=LEFT)
+        height_entry = Entry(input_frame, textvariable=self.height_var, width=15)
+        height_entry.pack(side=LEFT)
+
+        angle_label = Label(input_frame, text="Angle(°)", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        angle_label.pack(side=LEFT)
+        angle_entry = Entry(input_frame, textvariable=self.angle_var, width=15)
+        angle_entry.pack(side=LEFT)
+
+        step_label = Label(input_frame, text="Step", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        step_label.pack(side=LEFT)
+        step_entry = Entry(input_frame, textvariable=self.step_var, width=15)
+        step_entry.pack(side=LEFT)
+
+        action_button_frame = Frame(self.window, bg="#313335")
+        action_button_frame.pack(side=TOP, pady=(10, 15))
+
         action_button = Button(
             action_button_frame,
             text="Compare databases",
@@ -70,7 +91,7 @@ class InsertMultiple(Action):
             activeforeground="#ffffff",
             bd=0
         )
-        action_button.pack(side=LEFT, pady=(0, 15))
+        action_button.pack(side=BOTTOM, pady=(0, 15))
 
         # Statistics
         action_statistics_frame = Frame(self.window, bg="#313335")
@@ -245,7 +266,7 @@ class InsertMultiple(Action):
         spatial_core_avg_time_per_point_value.grid(row=3, column=1)
 
         # Spatial PostGIS
-        spatial_postgis_label_frame = LabelFrame(
+        spatial_label_frame = LabelFrame(
             action_statistics_frame,
             text="Spatial PostGIS database",
             labelanchor=N,
@@ -253,10 +274,10 @@ class InsertMultiple(Action):
             fg="#ffffff",
             pady=10
         )
-        spatial_postgis_label_frame.pack(side=LEFT, fill="both", expand="yes", pady=(15, 0))
+        spatial_label_frame.pack(side=LEFT, fill="both", expand="yes", pady=(15, 0))
 
         spatial_postgis_point_count_label = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             text="Point count",
             bg="#313335",
             fg="#ffffff",
@@ -264,7 +285,7 @@ class InsertMultiple(Action):
         )
         spatial_postgis_point_count_label.grid(row=0, column=0, sticky=W)
         spatial_postgis_point_count_value = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             textvariable=self.spatial_postgis_point_count_var,
             bg="#313335",
             fg="#ffffff",
@@ -273,7 +294,7 @@ class InsertMultiple(Action):
         spatial_postgis_point_count_value.grid(row=0, column=1)
 
         spatial_postgis_error_count_label = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             text="Error count",
             bg="#313335",
             fg="#ffffff",
@@ -281,7 +302,7 @@ class InsertMultiple(Action):
         )
         spatial_postgis_error_count_label.grid(row=1, column=0, sticky=W)
         spatial_postgis_error_count_value = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             textvariable=self.spatial_postgis_error_count_var,
             bg="#313335",
             fg="#ffffff",
@@ -290,7 +311,7 @@ class InsertMultiple(Action):
         spatial_postgis_error_count_value.grid(row=1, column=1)
 
         spatial_postgis_time_spent_label = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             text="Time spent",
             bg="#313335",
             fg="#ffffff",
@@ -298,7 +319,7 @@ class InsertMultiple(Action):
         )
         spatial_postgis_time_spent_label.grid(row=2, column=0, sticky=W)
         spatial_postgis_time_spent_value = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             textvariable=self.spatial_postgis_time_spent_var,
             bg="#313335",
             fg="#ffffff",
@@ -307,7 +328,7 @@ class InsertMultiple(Action):
         spatial_postgis_time_spent_value.grid(row=2, column=1)
 
         spatial_postgis_avg_time_per_point_label = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             text="Average time per point",
             bg="#313335",
             fg="#ffffff",
@@ -315,7 +336,7 @@ class InsertMultiple(Action):
         )
         spatial_postgis_avg_time_per_point_label.grid(row=3, column=0, sticky=W)
         spatial_postgis_avg_time_per_point_value = Label(
-            spatial_postgis_label_frame,
+            spatial_label_frame,
             textvariable=self.spatial_postgis_avg_time_per_point_var,
             bg="#313335",
             fg="#ffffff",
@@ -409,22 +430,51 @@ class InsertMultiple(Action):
         spsc_ratio_value.grid(row=3, column=1)
 
     def action(self):
-        if self.points is None:
-            messagebox.showerror(title="No points", message="No points loaded! Please load points first.")
+        try:
+            bottom_left_corner = (float(self.x_var.get()), float(self.y_var.get()))
+            width = float(self.width_var.get())
+            height = float(self.height_var.get())
+            angle = float(self.angle_var.get())
+            step = float(self.step_var.get())
+        except InvalidInputException as e:
+            messagebox.showerror(title="Invalid input", message=str(e))
+            self.reset_inputs()
+            return
+        except Exception:
+            messagebox.showerror(title="Invalid input", message="'x', 'y', 'width', 'height', 'angle' and 'step' must be floats")
+            self.reset_inputs()
             return
 
-        loading_screen = LoadingScreen(self.window, "Inserting to database", "Initializing...")
-        loading_screen.set_message("Inserting points to relational database...")
-        r_error_count, r_points_count, r_time_elapsed = rp_repository.insert_points(self.points)
-        loading_screen.set_message("Points inserted to relational database.")
+        loading_screen = LoadingScreen(self.window, "Updating database", "Initializing...")
+        loading_screen.set_message("Updating points in relational database...")
+        r_error_count, r_points_count, r_time_elapsed = rp_repository.update_points_in_rotated_rectangle(
+            bottom_left_corner,
+            width,
+            height,
+            angle,
+            step
+        )
+        loading_screen.set_message("Points updated in relational database.")
         loading_screen.set_progress_value(33.33)
-        loading_screen.set_message("Inserting points to spatial Core database...")
-        sc_error_count, sc_points_count, sc_time_elapsed = scp_repository.insert_points(self.points)
-        loading_screen.set_message("Points inserted to spatial Core database.")
+        loading_screen.set_message("Updating points in spatial Core database...")
+        sc_error_count, sc_points_count, sc_time_elapsed = scp_repository.update_points_in_rotated_rectangle(
+            bottom_left_corner,
+            width,
+            height,
+            angle,
+            step
+        )
+        loading_screen.set_message("Points updated in spatial Core database.")
         loading_screen.set_progress_value(66.66)
-        loading_screen.set_message("Inserting points to spatial PostGIS database...")
-        sp_error_count, sp_points_count, sp_time_elapsed = spp_repository.insert_points(self.points)
-        loading_screen.set_message("Points inserted to spatial PostGIS database.")
+        loading_screen.set_message("Updating points in spatial PostGIS database...")
+        sp_error_count, sp_points_count, sp_time_elapsed = spp_repository.update_points_in_rotated_rectangle(
+            bottom_left_corner,
+            width,
+            height,
+            angle,
+            step
+        )
+        loading_screen.set_message("Points updated in spatial PostGIS database.")
         loading_screen.set_progress_value(100.0)
         loading_screen.set_message("Done.")
         loading_screen.close()
@@ -469,22 +519,10 @@ class InsertMultiple(Action):
 
         self.best_database_var.set(value=best)
 
-    def perform_load_points(self):
-        thread = Thread(target=self.load_points)
-        thread.start()
-
-    def load_points(self):
-        file_name = filedialog.askopenfilename(
-            initialdir=".",
-            title="Select file",
-            filetypes=[("Database comparator file", "*.dbcom")]
-        )
-        if file_name is None or len(file_name) == 0:
-            return
-
-        try:
-            parser = DbcomParser(file_name)
-            parser.parse()
-            self.points = parser.points
-        except Exception:
-            messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
+    def reset_inputs(self):
+        self.x_var.set(value="")
+        self.y_var.set(value="")
+        self.width_var.set(value="")
+        self.height_var.set(value="")
+        self.angle_var.set(value="")
+        self.step_var.set(value="")
