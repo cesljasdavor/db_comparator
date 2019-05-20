@@ -11,7 +11,7 @@ def insert_point(x, y):
 
     connection = providers.db_connection_provider.get_connection()
     inserted = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -24,7 +24,7 @@ def insert_point(x, y):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -39,7 +39,7 @@ def insert_points(points):
 
     connection = providers.db_connection_provider.get_connection()
     inserted = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         for x, y in points:
@@ -54,7 +54,7 @@ def insert_points(points):
                 cursor.close()
                 connection.commit()
             except Exception:
-                has_errors = True
+                has_errors = "Yes"
                 connection.rollback()
     finally:
         end_time = datetime.now()
@@ -72,7 +72,7 @@ def update_point_by_coordinates(x, y, step):
 
     connection = providers.db_connection_provider.get_connection()
     updated = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -87,7 +87,7 @@ def update_point_by_coordinates(x, y, step):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -106,7 +106,7 @@ def update_points_in_rectangle(bottom_left_corner, width, height, step):
 
     connection = providers.db_connection_provider.get_connection()
     updated = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -127,7 +127,7 @@ def update_points_in_rectangle(bottom_left_corner, width, height, step):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -147,7 +147,7 @@ def update_points_in_rotated_rectangle(bottom_left_corner, width, height, angle,
 
     connection = providers.db_connection_provider.get_connection()
     updated = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -169,7 +169,7 @@ def update_points_in_rotated_rectangle(bottom_left_corner, width, height, angle,
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -187,7 +187,7 @@ def update_points_in_circle(center, radius, step):
 
     connection = providers.db_connection_provider.get_connection()
     updated = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -207,7 +207,7 @@ def update_points_in_circle(center, radius, step):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -222,7 +222,7 @@ def delete_point_by_coordinates(x, y):
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -236,7 +236,7 @@ def delete_point_by_coordinates(x, y):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -254,7 +254,7 @@ def delete_points_in_rectangle(bottom_left_corner, width, height):
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -273,7 +273,7 @@ def delete_points_in_rectangle(bottom_left_corner, width, height):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -292,7 +292,7 @@ def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle)
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -312,7 +312,7 @@ def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle)
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -327,7 +327,7 @@ def delete_points_in_circle(center, radius):
 
     connection = providers.db_connection_provider.get_connection()
     deleted = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -345,7 +345,7 @@ def delete_points_in_circle(center, radius):
         cursor.close()
         connection.commit()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
         connection.rollback()
     finally:
         end_time = datetime.now()
@@ -360,7 +360,7 @@ def find_point_by_coordinates(x, y):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -373,7 +373,7 @@ def find_point_by_coordinates(x, y):
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
     finally:
         end_time = datetime.now()
         connection.close()
@@ -390,7 +390,7 @@ def find_points_in_rectangle(bottom_left_corner, width, height):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -408,7 +408,7 @@ def find_points_in_rectangle(bottom_left_corner, width, height):
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
     finally:
         end_time = datetime.now()
         connection.close()
@@ -426,7 +426,7 @@ def find_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -445,7 +445,7 @@ def find_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
     finally:
         end_time = datetime.now()
         connection.close()
@@ -459,7 +459,7 @@ def find_points_in_circle(center, radius):
 
     connection = providers.db_connection_provider.get_connection()
     found = 0
-    has_errors = False
+    has_errors = "No"
     start_time = datetime.now()
     try:
         cursor = connection.cursor()
@@ -476,7 +476,7 @@ def find_points_in_circle(center, radius):
         found = cursor.rowcount
         cursor.close()
     except Exception:
-        has_errors = True
+        has_errors = "Yes"
     finally:
         end_time = datetime.now()
         connection.close()

@@ -18,15 +18,15 @@ class FindMultipleRectangle(Action):
         self.width_var = StringVar()
         self.height_var = StringVar()
         self.relational_point_count_var = StringVar(value="NaN")
-        self.relational_error_count_var = StringVar(value="NaN")
+        self.relational_has_errors_var = StringVar(value="None")
         self.relational_time_spent_var = StringVar(value="NaN")
         self.relational_avg_time_per_point_var = StringVar(value="NaN")
         self.spatial_core_point_count_var = StringVar(value="NaN")
-        self.spatial_core_error_count_var = StringVar(value="NaN")
+        self.spatial_core_has_errors_var = StringVar(value="None")
         self.spatial_core_time_spent_var = StringVar(value="NaN")
         self.spatial_core_avg_time_per_point_var = StringVar(value="NaN")
         self.spatial_postgis_point_count_var = StringVar(value="NaN")
-        self.spatial_postgis_error_count_var = StringVar(value="NaN")
+        self.spatial_postgis_has_errors_var = StringVar(value="None")
         self.spatial_postgis_time_spent_var = StringVar(value="NaN")
         self.spatial_postgis_avg_time_per_point_var = StringVar(value="NaN")
         self.best_database_var = StringVar(value="None")
@@ -122,22 +122,22 @@ class FindMultipleRectangle(Action):
         )
         relational_point_count_value.grid(row=0, column=1)
 
-        relational_error_count_label = Label(
+        relational_has_errors_label = Label(
             relational_label_frame,
-            text="Error count",
+            text="Has Errors",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        relational_error_count_label.grid(row=1, column=0, sticky=W)
-        relational_error_count_value = Label(
+        relational_has_errors_label.grid(row=1, column=0, sticky=W)
+        relational_has_errors_value = Label(
             relational_label_frame,
-            textvariable=self.relational_error_count_var,
+            textvariable=self.relational_has_errors_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        relational_error_count_value.grid(row=1, column=1)
+        relational_has_errors_value.grid(row=1, column=1)
 
         relational_time_spent_label = Label(
             relational_label_frame,
@@ -201,22 +201,22 @@ class FindMultipleRectangle(Action):
         )
         spatial_core_point_count_value.grid(row=0, column=1)
 
-        spatial_core_error_count_label = Label(
+        spatial_core_has_errors_label = Label(
             spatial_core_label_frame,
-            text="Error count",
+            text="Has Errors",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_core_error_count_label.grid(row=1, column=0, sticky=W)
-        spatial_core_error_count_value = Label(
+        spatial_core_has_errors_label.grid(row=1, column=0, sticky=W)
+        spatial_core_has_errors_value = Label(
             spatial_core_label_frame,
-            textvariable=self.spatial_core_error_count_var,
+            textvariable=self.spatial_core_has_errors_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_core_error_count_value.grid(row=1, column=1)
+        spatial_core_has_errors_value.grid(row=1, column=1)
 
         spatial_core_time_spent_label = Label(
             spatial_core_label_frame,
@@ -280,22 +280,22 @@ class FindMultipleRectangle(Action):
         )
         spatial_postgis_point_count_value.grid(row=0, column=1)
 
-        spatial_postgis_error_count_label = Label(
+        spatial_postgis_has_errors_label = Label(
             spatial_postgis_label_frame,
-            text="Error count",
+            text="Has Errors",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_postgis_error_count_label.grid(row=1, column=0, sticky=W)
-        spatial_postgis_error_count_value = Label(
+        spatial_postgis_has_errors_label.grid(row=1, column=0, sticky=W)
+        spatial_postgis_has_errors_value = Label(
             spatial_postgis_label_frame,
-            textvariable=self.spatial_postgis_error_count_var,
+            textvariable=self.spatial_postgis_has_errors_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_postgis_error_count_value.grid(row=1, column=1)
+        spatial_postgis_has_errors_value.grid(row=1, column=1)
 
         spatial_postgis_time_spent_label = Label(
             spatial_postgis_label_frame,
@@ -432,21 +432,21 @@ class FindMultipleRectangle(Action):
 
         loading_screen = LoadingScreen(self.window, "Reading from database", "Initializing...")
         loading_screen.set_message("Reading points from relational database...")
-        r_error_count, r_points_count, r_time_elapsed = rp_repository.find_points_in_rectangle(bottom_left_corner, width, height)
+        r_has_errors, r_points_count, r_time_elapsed = rp_repository.find_points_in_rectangle(bottom_left_corner, width, height)
         loading_screen.set_message("Points read from relational database.")
         loading_screen.set_progress_value(33.33)
         loading_screen.set_message("Reading points from spatial Core database...")
-        sc_error_count, sc_points_count, sc_time_elapsed = scp_repository.find_points_in_rectangle(bottom_left_corner, width, height)
+        sc_has_errors, sc_points_count, sc_time_elapsed = scp_repository.find_points_in_rectangle(bottom_left_corner, width, height)
         loading_screen.set_message("Points read from spatial Core database.")
         loading_screen.set_progress_value(66.66)
         loading_screen.set_message("Reading points from spatial PostGIS database...")
-        sp_error_count, sp_points_count, sp_time_elapsed = spp_repository.find_points_in_rectangle(bottom_left_corner, width, height)
+        sp_has_errors, sp_points_count, sp_time_elapsed = spp_repository.find_points_in_rectangle(bottom_left_corner, width, height)
         loading_screen.set_message("Points read from spatial PostGIS database.")
         loading_screen.set_progress_value(100.0)
         loading_screen.set_message("Done.")
         loading_screen.close()
 
-        self.relational_error_count_var.set(value=r_error_count)
+        self.relational_has_errors_var.set(value=r_has_errors)
         self.relational_point_count_var.set(value=r_points_count)
         self.relational_time_spent_var.set(value="{0:.3f} ms".format(r_time_elapsed))
         self.relational_avg_time_per_point_var.set(
@@ -455,7 +455,7 @@ class FindMultipleRectangle(Action):
             )
         )
 
-        self.spatial_core_error_count_var.set(value=sc_error_count)
+        self.spatial_core_has_errors_var.set(value=sc_has_errors)
         self.spatial_core_point_count_var.set(value=sc_points_count)
         self.spatial_core_time_spent_var.set(value="{0:.3f} ms".format(sc_time_elapsed))
         self.spatial_core_avg_time_per_point_var.set(
@@ -464,7 +464,7 @@ class FindMultipleRectangle(Action):
             )
         )
 
-        self.spatial_postgis_error_count_var.set(value=sp_error_count)
+        self.spatial_postgis_has_errors_var.set(value=sp_has_errors)
         self.spatial_postgis_point_count_var.set(value=sp_points_count)
         self.spatial_postgis_time_spent_var.set(value="{0:.3f} ms".format(sp_time_elapsed))
         self.spatial_postgis_avg_time_per_point_var.set(

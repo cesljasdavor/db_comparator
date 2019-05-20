@@ -16,15 +16,15 @@ class FindSingle(Action):
         self.x_var = StringVar()
         self.y_var = StringVar()
         self.relational_point_count_var = StringVar(value="NaN")
-        self.relational_error_count_var = StringVar(value="NaN")
+        self.relational_has_errors_var = StringVar(value="None")
         self.relational_time_spent_var = StringVar(value="NaN")
         self.relational_avg_time_per_point_var = StringVar(value="NaN")
         self.spatial_core_point_count_var = StringVar(value="NaN")
-        self.spatial_core_error_count_var = StringVar(value="NaN")
+        self.spatial_core_has_errors_var = StringVar(value="None")
         self.spatial_core_time_spent_var = StringVar(value="NaN")
         self.spatial_core_avg_time_per_point_var = StringVar(value="NaN")
         self.spatial_postgis_point_count_var = StringVar(value="NaN")
-        self.spatial_postgis_error_count_var = StringVar(value="NaN")
+        self.spatial_postgis_has_errors_var = StringVar(value="None")
         self.spatial_postgis_time_spent_var = StringVar(value="NaN")
         self.spatial_postgis_avg_time_per_point_var = StringVar(value="NaN")
         self.best_database_var = StringVar(value="None")
@@ -110,22 +110,22 @@ class FindSingle(Action):
         )
         relational_point_count_value.grid(row=0, column=1)
 
-        relational_error_count_label = Label(
+        relational_has_errors_label = Label(
             relational_label_frame,
-            text="Error count",
+            text="Has Errors",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        relational_error_count_label.grid(row=1, column=0, sticky=W)
-        relational_error_count_value = Label(
+        relational_has_errors_label.grid(row=1, column=0, sticky=W)
+        relational_has_errors_value = Label(
             relational_label_frame,
-            textvariable=self.relational_error_count_var,
+            textvariable=self.relational_has_errors_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        relational_error_count_value.grid(row=1, column=1)
+        relational_has_errors_value.grid(row=1, column=1)
 
         relational_time_spent_label = Label(
             relational_label_frame,
@@ -189,22 +189,22 @@ class FindSingle(Action):
         )
         spatial_core_point_count_value.grid(row=0, column=1)
 
-        spatial_core_error_count_label = Label(
+        spatial_core_has_errors_label = Label(
             spatial_core_label_frame,
-            text="Error count",
+            text="Has Errors",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_core_error_count_label.grid(row=1, column=0, sticky=W)
-        spatial_core_error_count_value = Label(
+        spatial_core_has_errors_label.grid(row=1, column=0, sticky=W)
+        spatial_core_has_errors_value = Label(
             spatial_core_label_frame,
-            textvariable=self.spatial_core_error_count_var,
+            textvariable=self.spatial_core_has_errors_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_core_error_count_value.grid(row=1, column=1)
+        spatial_core_has_errors_value.grid(row=1, column=1)
 
         spatial_core_time_spent_label = Label(
             spatial_core_label_frame,
@@ -268,22 +268,22 @@ class FindSingle(Action):
         )
         spatial_postgis_point_count_value.grid(row=0, column=1)
 
-        spatial_postgis_error_count_label = Label(
+        spatial_postgis_has_errors_label = Label(
             spatial_postgis_label_frame,
-            text="Error count",
+            text="Has Errors",
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_postgis_error_count_label.grid(row=1, column=0, sticky=W)
-        spatial_postgis_error_count_value = Label(
+        spatial_postgis_has_errors_label.grid(row=1, column=0, sticky=W)
+        spatial_postgis_has_errors_value = Label(
             spatial_postgis_label_frame,
-            textvariable=self.spatial_postgis_error_count_var,
+            textvariable=self.spatial_postgis_has_errors_var,
             bg="#313335",
             fg="#ffffff",
             padx=20
         )
-        spatial_postgis_error_count_value.grid(row=1, column=1)
+        spatial_postgis_has_errors_value.grid(row=1, column=1)
 
         spatial_postgis_time_spent_label = Label(
             spatial_postgis_label_frame,
@@ -408,9 +408,9 @@ class FindSingle(Action):
         try:
             x = float(self.x_var.get())
             y = float(self.y_var.get())
-            r_error_count, r_points_count, r_time_elapsed = rp_repository.find_point_by_coordinates(x, y)
-            sc_error_count, sc_points_count, sc_time_elapsed = scp_repository.find_point_by_coordinates(x, y)
-            sp_error_count, sp_points_count, sp_time_elapsed = spp_repository.find_point_by_coordinates(x, y)
+            r_has_errors, r_points_count, r_time_elapsed = rp_repository.find_point_by_coordinates(x, y)
+            sc_has_errors, sc_points_count, sc_time_elapsed = scp_repository.find_point_by_coordinates(x, y)
+            sp_has_errors, sp_points_count, sp_time_elapsed = spp_repository.find_point_by_coordinates(x, y)
 
             if r_points_count == 0 and sp_points_count == 0:
                 messagebox.showwarning(title="Not found", message="No points with coordinates ({0}, {1})".format(x, y))
@@ -424,7 +424,7 @@ class FindSingle(Action):
             self.reset_inputs()
             return
 
-        self.relational_error_count_var.set(value=r_error_count)
+        self.relational_has_errors_var.set(value=r_has_errors)
         self.relational_point_count_var.set(value=r_points_count)
         self.relational_time_spent_var.set(value="{0:.3f} ms".format(r_time_elapsed))
         self.relational_avg_time_per_point_var.set(
@@ -433,7 +433,7 @@ class FindSingle(Action):
             )
         )
 
-        self.spatial_core_error_count_var.set(value=sc_error_count)
+        self.spatial_core_has_errors_var.set(value=sc_has_errors)
         self.spatial_core_point_count_var.set(value=sc_points_count)
         self.spatial_core_time_spent_var.set(value="{0:.3f} ms".format(sc_time_elapsed))
         self.spatial_core_avg_time_per_point_var.set(
@@ -442,7 +442,7 @@ class FindSingle(Action):
             )
         )
 
-        self.spatial_postgis_error_count_var.set(value=sp_error_count)
+        self.spatial_postgis_has_errors_var.set(value=sp_has_errors)
         self.spatial_postgis_point_count_var.set(value=sp_points_count)
         self.spatial_postgis_time_spent_var.set(value="{0:.3f} ms".format(sp_time_elapsed))
         self.spatial_postgis_avg_time_per_point_var.set(
