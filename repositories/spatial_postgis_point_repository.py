@@ -42,20 +42,14 @@ def insert_points(points):
     has_errors = "No"
     start_time = datetime.now()
     try:
-        for x, y in points:
-            try:
-                cursor = connection.cursor()
-                cursor.execute(
-                    """
-                        INSERT INTO spatial_postgis_point (point) VALUES (st_geomfromtext('POINT({0} {1})', 4326))
-                    """.format(x, y)
-                )
-                inserted += cursor.rowcount
-                cursor.close()
-                connection.commit()
-            except Exception:
-                has_errors = "Yes"
-                connection.rollback()
+        cursor = connection.cursor()
+        cursor.executemany("INSERT INTO spatial_postgis_point (point) VALUES (st_geomfromtext('POINT(%s %s)', 4326))", points)
+        inserted = cursor.rowcount
+        cursor.close()
+        connection.commit()
+    except Exception:
+        has_errors = "Yes"
+        connection.rollback()
     finally:
         end_time = datetime.now()
         connection.close()
