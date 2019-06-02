@@ -16,7 +16,7 @@ from actions.update_multiple_circle import UpdateMultipleCircle
 from actions.update_multiple_rectangle import UpdateMultipleRectangle
 from actions.update_multiple_rotated_rectangle import UpdateMultipleRotatedRectangle
 from actions.update_single import UpdateSingle
-from utils.gui_utils import perform_database_reset, show_map
+from utils.gui_utils import perform_database_reset, show_map, toggle_indices, show_db_state
 from utils.gui_utils import show_help
 
 
@@ -32,7 +32,7 @@ class Program(object):
         self.setup_menubar()
 
         # Initialize window
-        FindMultipleRectangle(self.window)
+        self.insert_multiple()
 
     def start(self):
         self.window.mainloop()
@@ -76,6 +76,8 @@ class Program(object):
         action_menu.add_command(label="Delete multiple - Rotated Rectangle", command=self.delete_multiple_rotated_rectangle)
         action_menu.add_command(label="Delete multiple - Circle", command=self.delete_multiple_circle)
         action_menu.add_separator()
+        action_menu.add_command(label="Toggle indices", command=toggle_indices)
+        action_menu.add_separator()
         action_menu.add_command(label="Reset database", command=perform_database_reset)
 
         # Maps
@@ -94,6 +96,7 @@ class Program(object):
 
         menubar.add_cascade(label="Actions", menu=action_menu)
         menubar.add_cascade(label="Maps", menu=map_menu)
+        menubar.add_command(label="State", command=show_db_state)
         menubar.add_command(label="Help", command=show_help)
         menubar.add_command(label="Exit", command=self.exit_app)
 

@@ -12,7 +12,8 @@ from utils.gui_utils import LoadingScreen
 class FindMultipleCircle(Action):
     def __init__(self, window):
         super().__init__(window)
-        self.rename_window("Database Comparator - Find Multiple - Circle")
+        self.title = "Find Multiple - Circle"
+        self.rename_window("Database Comparator - {0}".format(self.title))
 
         self.center_x_var = StringVar()
         self.center_y_var = StringVar()
@@ -23,7 +24,7 @@ class FindMultipleCircle(Action):
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Find Multiple - Circle", anchor=CENTER, font=('Courier', 20),
+        action_title = Label(self.window, text=self.title, anchor=CENTER, font=('Courier', 20),
                              bg="#313335", fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
@@ -89,7 +90,7 @@ class FindMultipleCircle(Action):
         loading_screen.set_message("Done.")
         loading_screen.close()
 
-        self.show_statistics(relational_data, spatial_core_data, spatial_postgis_data)
+        self.show_statistics(self.title, relational_data, spatial_core_data, spatial_postgis_data)
 
     def reset_inputs(self):
         self.center_x_var.set(value="")

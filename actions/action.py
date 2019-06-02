@@ -1,5 +1,8 @@
 from threading import Thread
 from tkinter import *
+from tkinter import messagebox
+
+from repositories import result_repository
 
 
 class Action(object):
@@ -24,6 +27,8 @@ class Action(object):
         self.rsp_ratio_var = StringVar(value="NaN")
         self.spsc_ratio_var = StringVar(value="NaN")
         self.rsc_ratio_var = StringVar(value="NaN")
+        self.save_result_button_frame = None
+        self.save_result_button = None
 
     def destroy_all_elements(self):
         first = True
@@ -373,6 +378,9 @@ class Action(object):
         )
         spsc_ratio_value.grid(row=3, column=1)
 
+        self.save_result_button_frame = Frame(action_overall_frame, bg="#313335")
+        self.save_result_button_frame.pack(side=TOP, fill="both", expand="yes")
+
     def create_footer(self):
         footer_frame = Frame(self.window, bg="#212325")
         footer_frame.pack(side=TOP, fill="both")
@@ -392,41 +400,39 @@ class Action(object):
     def action(self):
         pass
 
-    def show_statistics(self, relational_data, spatial_core_data, spatial_postgis_data):
-        r_has_errors, r_points_count, r_time_elapsed = relational_data
-        sc_has_errors, sc_points_count, sc_time_elapsed = spatial_core_data
-        sp_has_errors, sp_points_count, sp_time_elapsed = spatial_postgis_data
+    def show_statistics(self, operation, relational_data, spatial_core_data, spatial_postgis_data):
+        # Remove previous result save button
+        if self.save_result_button is not None:
+            self.save_result_button.destroy()
+
+        r_has_errors, r_point_count, r_time_elapsed = relational_data
+        sc_has_errors, sc_point_count, sc_time_elapsed = spatial_core_data
+        sp_has_errors, sp_point_count, sp_time_elapsed = spatial_postgis_data
 
         self.relational_has_errors_var.set(value=r_has_errors)
-        self.relational_point_count_var.set(value=r_points_count)
+        self.relational_point_count_var.set(value=r_point_count)
         self.relational_time_spent_var.set(value="{0:.3f} ms".format(r_time_elapsed))
-        self.relational_avg_time_per_point_var.set(
-            "{0:.3f} ms".format(
-                r_time_elapsed / r_points_count if r_points_count > 0 else 0
-            )
-        )
+        r_avg_time_per_point = r_time_elapsed / r_point_count if r_point_count > 0 else 0
+        self.relational_avg_time_per_point_var.set("{0:.3f} ms".format(r_avg_time_per_point))
 
         self.spatial_core_has_errors_var.set(value=sc_has_errors)
-        self.spatial_core_point_count_var.set(value=sc_points_count)
+        self.spatial_core_point_count_var.set(value=sc_point_count)
         self.spatial_core_time_spent_var.set(value="{0:.3f} ms".format(sc_time_elapsed))
-        self.spatial_core_avg_time_per_point_var.set(
-            "{0:.3f} ms".format(
-                sc_time_elapsed / sc_points_count if sc_points_count > 0 else 0
-            )
-        )
+        sc_avg_time_per_point = sc_time_elapsed / sc_point_count if sc_point_count > 0 else 0
+        self.spatial_core_avg_time_per_point_var.set("{0:.3f} ms".format(sc_avg_time_per_point))
 
         self.spatial_postgis_has_errors_var.set(value=sp_has_errors)
-        self.spatial_postgis_point_count_var.set(value=sp_points_count)
+        self.spatial_postgis_point_count_var.set(value=sp_point_count)
         self.spatial_postgis_time_spent_var.set(value="{0:.3f} ms".format(sp_time_elapsed))
-        self.spatial_postgis_avg_time_per_point_var.set(
-            "{0:.3f} ms".format(
-                sp_time_elapsed / sp_points_count if sp_points_count > 0 else 0
-            )
-        )
+        sp_avg_time_per_point = sp_time_elapsed / sp_point_count if sp_point_count > 0 else 0
+        self.spatial_postgis_avg_time_per_point_var.set("{0:.3f} ms".format(sp_avg_time_per_point))
 
-        self.rsc_ratio_var.set(value="{0:.3f}".format(r_time_elapsed / sc_time_elapsed))
-        self.rsp_ratio_var.set(value="{0:.3f}".format(r_time_elapsed / sp_time_elapsed))
-        self.spsc_ratio_var.set(value="{0:.3f}".format(sp_time_elapsed / sc_time_elapsed))
+        rsc_ratio = r_time_elapsed / sc_time_elapsed
+        rsp_ratio = r_time_elapsed / sp_time_elapsed
+        spsc_ratio = sp_time_elapsed / sc_time_elapsed
+        self.rsc_ratio_var.set(value="{0:.3f}".format(rsc_ratio))
+        self.rsp_ratio_var.set(value="{0:.3f}".format(rsp_ratio))
+        self.spsc_ratio_var.set(value="{0:.3f}".format(spsc_ratio))
 
         if sc_time_elapsed < r_time_elapsed and sc_time_elapsed < sp_time_elapsed:
             best = "Spatial Core"
@@ -436,3 +442,36 @@ class Action(object):
             best = "Spatial PostGIS"
 
         self.best_database_var.set(value=best)
+
+        # Add save result button
+        self.save_result_button = Button(
+            self.save_result_button_frame,
+            text="Save result",
+            command=lambda: self.save_result(
+                operation=operation,
+                relational_data=tuple([r_has_errors, r_point_count, r_time_elapsed, r_avg_time_per_point]),
+                spatial_core_data=tuple([sc_has_errors, sc_point_count, sc_time_elapsed, sc_avg_time_per_point]),
+                spatial_postgis_data=tuple([sp_has_errors, sp_point_count, sp_time_elapsed, sp_avg_time_per_point]),
+                statistics=tuple([rsc_ratio, rsp_ratio, spsc_ratio, best])
+            ),
+            bg="#28a745",
+            activebackground="#25a341",
+            fg="#ffffff",
+            activeforeground="#ffffff",
+            bd=0
+        )
+        self.save_result_button.pack(side=BOTTOM, pady=(15, 15))
+
+    def save_result(self, operation, relational_data, spatial_core_data, spatial_postgis_data, statistics):
+        try:
+            result_repository.save_result(
+                operation,
+                relational_data,
+                spatial_core_data,
+                spatial_postgis_data,
+                statistics
+            )
+
+            self.save_result_button.destroy()
+        except Exception as e:
+            messagebox.showerror(title="Save result error", message="Unable to save result.")

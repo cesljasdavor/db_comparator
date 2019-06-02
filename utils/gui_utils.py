@@ -3,9 +3,31 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Progressbar
 
+from providers import db_state
 from utils.program_utils import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
+
+
+def show_db_state():
+    db_state_window = Toplevel()
+    db_state_window.title("Database Comparator - Database state")
+    icon = PhotoImage(file=os.path.join("/usr/share/icons", "database_comparator.png"))
+    db_state_window.tk.call("wm", "iconphoto", db_state_window._w, icon)
+    db_state_window.geometry("{0}x{1}".format(600, 200))
+    db_state_window.resizable(0, 0)
+    db_state_window.configure(bg="#313335")
+
+    db_state_title = Label(db_state_window, text="Database state", anchor=CENTER, font=('Courier', 20), bg="#313335",
+                       fg="#ffffff")
+    db_state_title.pack(side=TOP, pady=(10, 10))
+    db_state_text = """
+Has index = {0}
+Dataset = {1}
+Dataset size = {2}
+    """.format(("Yes" if db_state["has_index"] else "No"), db_state["dataset"], db_state["dataset_size"])
+    db_state_message = Message(db_state_window, text=db_state_text, width=500, bg="#313335", fg="#ffffff")
+    db_state_message.pack()
 
 
 def show_help():
@@ -27,12 +49,13 @@ Usage
 1. Click on "Actions" menu and pick one of the CRUD operations
 2. Enter necessary parameters
 3. Click "Compare databases" button
-4. View results
+4. View statistics
+5. Save result for further analysis
 
-You can click on "Show Map" to visualize coordinates on a map of the world.
+You can click on one of "Show Map" options to visualize coordinates on a map of the world.
+You can click "State" if you are interested in database state.
 
-Created by Davor Češljaš, Faculty of Electrical engineering and Computing. 
-All rights reserved ®  
+Created by Davor Češljaš, Faculty of Electrical engineering and Computing. All rights reserved ®  
     """
     help_message = Message(help_window, text=help_text, width=500, bg="#313335", fg="#ffffff")
     help_message.pack()
@@ -67,8 +90,18 @@ def show_map(table_name=None):
     plt.show()
 
 
+def toggle_indices():
+    reset_database(not db_state["has_index"])
+    db_state["has_index"] = not db_state["has_index"]
+
+    if db_state["has_index"]:
+        messagebox.showinfo(title="Indices added", message="Indices successfully added.")
+    else:
+        messagebox.showinfo(title="Indices removed", message="Indices successfully removed.")
+
+
 def perform_database_reset():
-    reset_database()
+    reset_database(db_state["has_index"])
     messagebox.showinfo(title="Database reset", message="Database successfully reset.")
 
 

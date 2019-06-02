@@ -108,7 +108,7 @@ def update_points_in_rectangle(bottom_left_corner, width, height, step):
             """
                 UPDATE spatial_postgis_point
                 SET point = st_setsrid(st_makepoint(st_x(point) + {0}, st_y(point) + {0}), 4326)
-                WHERE st_contains(st_makeenvelope({1}, {2}, {3}, {4}, 4326), point)
+                WHERE st_intersects(point, st_makeenvelope({1}, {2}, {3}, {4}, 4326))
             """.format(
                 step,
                 bottom_left_corner[0],
@@ -149,7 +149,7 @@ def update_points_in_rotated_rectangle(bottom_left_corner, width, height, angle,
             """
                 UPDATE spatial_postgis_point
                 SET point = st_setsrid(st_makepoint(st_x(point) + {0}, st_y(point) + {0}), 4326)
-                WHERE st_contains(st_rotate(st_makeenvelope({1}, {2}, {3}, {4}, 4326), radians({5})), point)
+                WHERE st_intersects(point, st_rotate(st_makeenvelope({1}, {2}, {3}, {4}, 4326), radians({5})))
             """.format(
                 step,
                 bottom_left_corner[0],
@@ -255,7 +255,7 @@ def delete_points_in_rectangle(bottom_left_corner, width, height):
         cursor.execute(
             """
                 DELETE FROM spatial_postgis_point
-                WHERE st_contains(st_makeenvelope({0}, {1}, {2}, {3}, 4326), point)
+                WHERE st_intersects(point, st_makeenvelope({0}, {1}, {2}, {3}, 4326))
             """.format(
                 bottom_left_corner[0],
                 bottom_left_corner[1],
@@ -293,7 +293,7 @@ def delete_points_in_rotated_rectangle(bottom_left_corner, width, height, angle)
         cursor.execute(
             """
                 DELETE FROM spatial_postgis_point
-                WHERE st_contains(st_rotate(st_makeenvelope({0}, {1}, {2}, {3}, 4326), radians({4})), point)
+                WHERE st_intersects(point, st_rotate(st_makeenvelope({0}, {1}, {2}, {3}, 4326), radians({4})))
             """.format(
                 bottom_left_corner[0],
                 bottom_left_corner[1],
@@ -391,7 +391,7 @@ def find_points_in_rectangle(bottom_left_corner, width, height):
         cursor.execute(
             """
                 SELECT * FROM spatial_postgis_point
-                WHERE st_contains(st_makeenvelope({0}, {1}, {2}, {3}, 4326), point)
+                WHERE st_intersects(point, st_makeenvelope({0}, {1}, {2}, {3}, 4326))
             """.format(
                 bottom_left_corner[0],
                 bottom_left_corner[1],
@@ -427,7 +427,7 @@ def find_points_in_rotated_rectangle(bottom_left_corner, width, height, angle):
         cursor.execute(
             """
                 SELECT * FROM spatial_postgis_point
-                WHERE st_contains(st_rotate(st_makeenvelope({0}, {1}, {2}, {3}, 4326), radians({4})), point)
+                WHERE st_intersects(point, st_rotate(st_makeenvelope({0}, {1}, {2}, {3}, 4326), radians({4})))
             """.format(
                 bottom_left_corner[0],
                 bottom_left_corner[1],

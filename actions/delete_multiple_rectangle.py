@@ -13,7 +13,8 @@ class DeleteMultipleRectangle(Action):
 
     def __init__(self, window):
         super().__init__(window)
-        self.rename_window("Database Comparator - Delete Multiple - Rectangle")
+        self.title = "Delete Multiple - Rectangle"
+        self.rename_window("Database Comparator - {0}".format(self.title))
 
         self.x_var = StringVar()
         self.y_var = StringVar()
@@ -25,7 +26,7 @@ class DeleteMultipleRectangle(Action):
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Delete Multiple - Rectangle", anchor=CENTER, font=('Courier', 20),
+        action_title = Label(self.window, text=self.title, anchor=CENTER, font=('Courier', 20),
                              bg="#313335", fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
@@ -109,7 +110,7 @@ class DeleteMultipleRectangle(Action):
         loading_screen.set_message("Done.")
         loading_screen.close()
 
-        self.show_statistics(relational_data, spatial_core_data, spatial_postgis_data)
+        self.show_statistics(self.title, relational_data, spatial_core_data, spatial_postgis_data)
 
     def reset_inputs(self):
         self.x_var.set(value="")

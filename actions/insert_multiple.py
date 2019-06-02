@@ -5,7 +5,8 @@ from tkinter import filedialog
 from tkinter import *
 from tkinter import messagebox
 
-from repositories import relational_point_repository as rp_repository
+from providers import db_state
+from repositories import relational_point_repository as rp_repository, configuration_repository
 from repositories import spatial_core_repository as scp_repository
 from repositories import spatial_postgis_point_repository as spp_repository
 from parsers.dbcom_parser import DbcomParser
@@ -16,8 +17,10 @@ class InsertMultiple(Action):
 
     def __init__(self, window):
         super().__init__(window)
-        self.rename_window("Database Comparator - Insert Multiple")
+        self.title = "Insert Multiple"
+        self.rename_window("Database Comparator - {0}".format(self.title))
 
+        self.file_name = None
         self.points = None
 
         self.init_gui()
@@ -25,7 +28,7 @@ class InsertMultiple(Action):
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Insert Multiple", anchor=CENTER, font=('Courier', 20), bg="#313335",
+        action_title = Label(self.window, text=self.title, anchor=CENTER, font=('Courier', 20), bg="#313335",
                              fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
@@ -58,6 +61,26 @@ class InsertMultiple(Action):
         )
         action_button.pack(side=LEFT, pady=(0, 15))
 
+    def perform_load_points(self):
+        thread = Thread(target=self.load_points)
+        thread.start()
+
+    def load_points(self):
+        self.file_name = filedialog.askopenfilename(
+            initialdir=".",
+            title="Select file",
+            filetypes=[("Database comparator file", "*.dbcom")]
+        )
+        if self.file_name is None or len(self.file_name) == 0:
+            return
+
+        try:
+            parser = DbcomParser(self.file_name)
+            parser.parse()
+            self.points = parser.points
+        except Exception:
+            messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
+
     def action(self):
         if self.points is None:
             messagebox.showerror(title="No points", message="No points loaded! Please load points first.")
@@ -79,24 +102,16 @@ class InsertMultiple(Action):
         loading_screen.set_message("Done.")
         loading_screen.close()
 
-        self.show_statistics(relational_data, spatial_core_data, spatial_postgis_data)
+        self.change_active_dataset()
+        self.show_statistics(self.title, relational_data, spatial_core_data, spatial_postgis_data)
 
-    def perform_load_points(self):
-        thread = Thread(target=self.load_points)
-        thread.start()
+    def change_active_dataset(self):
+        dataset_file_name = self.file_name.split("/")[-1]
+        dataset = dataset_file_name.split(".")[0]
+        dataset_size = len(self.points)
 
-    def load_points(self):
-        file_name = filedialog.askopenfilename(
-            initialdir=".",
-            title="Select file",
-            filetypes=[("Database comparator file", "*.dbcom")]
-        )
-        if file_name is None or len(file_name) == 0:
-            return
+        configuration_repository.set_active_dataset(dataset)
+        configuration_repository.set_active_dataset_size(dataset_size)
 
-        try:
-            parser = DbcomParser(file_name)
-            parser.parse()
-            self.points = parser.points
-        except Exception:
-            messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
+        db_state["dataset"] = dataset
+        db_state["dataset_size"] = dataset_size

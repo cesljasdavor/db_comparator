@@ -12,7 +12,8 @@ class FindSingle(Action):
 
     def __init__(self, window):
         super().__init__(window)
-        self.rename_window("Database Comparator - Find Single")
+        self.title = "Find Single"
+        self.rename_window("Database Comparator - {0}".format(self.title))
 
         self.x_var = StringVar()
         self.y_var = StringVar()
@@ -22,7 +23,7 @@ class FindSingle(Action):
         self.create_footer()
 
     def init_gui(self):
-        action_title = Label(self.window, text="Find Single", anchor=CENTER, font=('Courier', 20), bg="#313335",
+        action_title = Label(self.window, text=self.title, anchor=CENTER, font=('Courier', 20), bg="#313335",
                              fg="#ffffff")
         action_title.pack(side=TOP, pady=(10, 10))
 
@@ -71,7 +72,7 @@ class FindSingle(Action):
         spatial_core_data = scp_repository.find_point_by_coordinates(x, y)
         spatial_postgis_data= spp_repository.find_point_by_coordinates(x, y)
 
-        self.show_statistics(relational_data, spatial_core_data, spatial_postgis_data)
+        self.show_statistics(self.title, relational_data, spatial_core_data, spatial_postgis_data)
 
     def reset_inputs(self):
         self.x_var.set(value="")
