@@ -66,18 +66,19 @@ class InsertMultiple(Action):
         thread.start()
 
     def load_points(self):
-        self.file_name = filedialog.askopenfilename(
+        file_name = filedialog.askopenfilename(
             initialdir=".",
             title="Select file",
             filetypes=[("Database comparator file", "*.dbcom")]
         )
-        if self.file_name is None or len(self.file_name) == 0:
+        if file_name is None or len(file_name) == 0:
             return
 
         try:
-            parser = DbcomParser(self.file_name)
+            parser = DbcomParser(file_name)
             parser.parse()
             self.points = parser.points
+            self.file_name = parser.file_name
         except Exception:
             messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
 

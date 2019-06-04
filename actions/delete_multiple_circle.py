@@ -42,7 +42,7 @@ class DeleteMultipleCircle(Action):
         center_y_entry = Entry(input_frame, textvariable=self.center_y_var, width=15)
         center_y_entry.pack(side=LEFT)
 
-        radius_label = Label(input_frame, text="Width", fg="#ffffff", bg="#313335", bd=0, padx=20)
+        radius_label = Label(input_frame, text="Radius", fg="#ffffff", bg="#313335", bd=0, padx=20)
         radius_label.pack(side=LEFT)
         radius_entry = Entry(input_frame, textvariable=self.radius_var, width=15)
         radius_entry.pack(side=LEFT)
@@ -91,7 +91,7 @@ class DeleteMultipleCircle(Action):
         loading_screen.set_message("Done.")
         loading_screen.close()
 
-        self.show_statistics(self.title , relational_data, spatial_core_data, spatial_postgis_data)
+        self.show_statistics(self.title, relational_data, spatial_core_data, spatial_postgis_data)
 
     def reset_inputs(self):
         self.center_x_var.set(value="")
