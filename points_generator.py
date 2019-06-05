@@ -37,7 +37,7 @@ def generate_routers(file_name, step, extra_points, sigma):
             if i < number_of_points - 1:
                 write_file.write("\n")
 
-    total_points = number_of_points * (extra_points if extra_points is not None else 1)
+    total_points = number_of_points * (extra_points + 1 if extra_points is not None else 1)
     print("{0} points generated".format(total_points))
 
 
