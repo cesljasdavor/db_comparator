@@ -80,7 +80,7 @@ class InsertMultiple(Action):
             self.points = parser.points
             self.file_name = parser.file_name
 
-            messagebox.showinfo(title="Points loaded", message="Point loaded from {0} dataset".format(self.file_name))
+            messagebox.showinfo(title="Points loaded", message="Point loaded from: '{0}'".format(self.file_name))
         except Exception:
             messagebox.showerror(title="Parse error", message="Unable to parse points from file {0}".format(file_name))
 
